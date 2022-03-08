@@ -29,7 +29,7 @@
   "author": "QiuFilms",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^13.1.7",
+    "electron": "^13.6.9",
     "electron-builder": "^22.13.1",
     "jquery": "^3.6.0"
   }
