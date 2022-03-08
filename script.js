@@ -4,77 +4,30 @@ const d = document;
 var spawn = require("child_process").spawn
 const child = require('child_process');
 
+//Imports
+import listDrives from "./Functions/listDrives.js"
+import createDiskElement from "./Functions/createDiskElement.js"
+
 
 //ListDrives
-function listDrives(){
-    const list  = spawn('cmd');
-
-    return new Promise((resolve, reject) => {
-        list.stdout.on('data', function (data) {
-            const output =  String(data)
-            const out = output.split("\r\n").map(e=>e.trim()).filter(e=>e!="")
-            if (out[0]==="Name"){
-                resolve(out.slice(1))
-            }
-        });
-
-
-        list.stdin.write('wmic logicaldisk get name\n');
-        list.stdin.end();
-        
-    })
-}
-
+listDrives()
 
 listDrives().then((data) => getDrives(data))
 
-
+var x;
 function getDrives(data) {
-    for(x in data){
-        createDiskElement(data)
+    for( x in data){
+        createDiskElement(data,x)
     }
 }
 
-function createDiskElement(data) {
-    let div = d.createElement("div")
-    div.setAttribute("id","disk_div");
-    let leftBar = d.getElementById("disks");
-    leftBar.appendChild(div);
-    let drive = d.createElement("img");
-    drive.setAttribute("src","Icons/drive.png");
-    div.appendChild(drive);
-    let namef = d.createElement("p");
-    namef.setAttribute("id","drive_name");
-    namef.innerHTML = data[x];
-    div.appendChild(namef);
-    let dname = `${data[x]}/`
-    div.setAttribute("name",dname)
-    let content = d.getElementById("content");
-    div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()");
-    label(data,namef);
-}
-function label(data,namef) {
-    child.exec('@chcp 65001 >nul & cmd /d/s/c  vol '+data[x],{encoding: "UTF-8"}, (error, stdout) => {
-        var fields = stdout.split(' ');
-        if (fields[6]=="no"){
-            let nameLabel = "";
-            namef.innerHTML=namef.innerHTML+" "+nameLabel;
-        }else if(fields[6]==undefined){
-            let nameLabel = "Dysk sieciowy lub napęd";
-            namef.innerHTML=namef.innerHTML+" "+nameLabel;
-        }else{
-            let nameLabel = fields[6];
-            namef.innerHTML=namef.innerHTML+" "+nameLabel;
-        }
-    });
-}
 
 //CurrentPath
 sessionStorage.setItem("currentPath","start");
 sessionStorage.setItem("previousPath","start");
 
 
-function start(isFocused) {
+window.start = function(isFocused) {
     if(sessionStorage.getItem("currentPath")=="start"){
         function startDrives(data){
             child.exec('fsutil volume diskfree c:/',{encoding: "UTF-8"}, (err, stdout, stderr) => {
@@ -207,9 +160,12 @@ function File() {
     div.appendChild(namef);
     let fdir = sessionStorage.getItem('currentPath')+`/${files1[x]}`;
     div.setAttribute("name",fdir)
-    div.setAttribute("onclick",`child.exec('"${fdir}"');`)
+    div.setAttribute("onclick",`openFile('"${fdir}"');`)
 }
 
+window.openFile = function (fdir){
+    child.exec(fdir)
+}
 
 function defineExtension(){
     var fileExt = files1[x].split('.').pop();
@@ -224,9 +180,25 @@ function defineExtension(){
 }
 
 }
-function dirChange() {
-    sessionStorage.setItem("previousPath",sessionStorage.getItem('currentPath'));
-    sessionStorage.setItem('currentPath',(sessionStorage.getItem("currentPath")+sessionStorage.getItem("folderPath")))
+window.dirChange =  function () {
+    var currentPath = sessionStorage.getItem('currentPath').split("/")
+    var temp1 = [];
+    var pathG;
+
+    for(let i of currentPath)
+        i && temp1.push(i);
+    
+    console.log(temp1)
+    for(let i in temp1){
+        if(i==0){
+            pathG = temp1[i];
+        }else{
+            pathG += "/"+temp1[i];
+        }
+    }
+
+    sessionStorage.setItem("previousPath",pathG);
+    sessionStorage.setItem('currentPath',(pathG+sessionStorage.getItem("folderPath")))
 
     content.innerHTML = "";
     
@@ -249,7 +221,7 @@ function logButtons(e) {
     }
 }
 
-function backClick(){
+window.backClick =  function (){
         var fields = sessionStorage.getItem("currentPath").split('/');
 
         var last = fields[fields.length-1]
@@ -268,17 +240,17 @@ var box = document.querySelector("#content-outer");
 var pageX = document.getElementById("x");
 var pageY = document.getElementById("y");
 
-function updateDisplay(event) {
+window.updateDisplay =  function (event) {
     document.getElementById("contextMenu").style.display = "";
     document.getElementById("contextMenu").style.left=event.pageX-160+"px";
     document.getElementById("contextMenu").style.top=event.pageY-80+"px";
 }
 
-function hide() {
+window.hide = function() {
     document.getElementById('contextMenu').style.display = 'none';
 }
 
-function openCmd() {
+window.openCmd = function () {
 
         if(__dirname.slice(0,2)==sessionStorage.getItem("currentPath").slice(0,2)){
             child.exec(`cd ${sessionStorage.getItem("currentPath").slice(0,2)}/ & cd ${sessionStorage.getItem("currentPath")} & start cmd.exe`);
@@ -303,14 +275,14 @@ function createFile() {
 
 
 let content = d.getElementById("content");
-function showCreator() {
+window.showCreator = function () {
     document.getElementById("create").style.display = "";
 }
-function showCreator2() {
+window.showCreator2 = function () {
     document.getElementById("create2").style.display = "";
 }
 
-function showDelete() {
+window.showDelete =  function () {
     document.getElementById("delete").style.display = "";
 }
 
@@ -319,7 +291,7 @@ function createFolder() {
     document.getElementById("create2").style.display = "";
     let input = document.getElementById("create-input2");
     let inpPath = sessionStorage.getItem("currentPath")+"/"+input.value;
-    fs.mkdir(inpPath, 0744, function(err) {
+    fs.mkdir(inpPath, "0744", function(err) {
         if (err) throw err;
     });
     document.getElementById("create2").style.display = "none";
@@ -381,8 +353,6 @@ function checkTimeOut() {
   checkTimeOut()
 
 
-
-
 var input = document.getElementById("path-text");
 input.addEventListener("keyup", function() {
   if (event.keyCode === 13) {
@@ -398,7 +368,7 @@ input.addEventListener("keyup", function() {
 });
 
 
-function foc(){
+window.foc = function (){
     document.getElementById("path-text").innerHTML = sessionStorage.getItem("currentPath")
 }
 
@@ -409,6 +379,7 @@ input.addEventListener('focusin', () => {
 input.addEventListener('focusout', () => {
     document.getElementById("path-text").innerHTML =`<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> ${sessionStorage.getItem("currentPath")}`;
 });
+
 
 function openedFolder(){
     document.getElementById("openFolder").innerHTML = '';
@@ -425,7 +396,7 @@ function openedFolder(){
             let li = document.createElement("li")
             li.setAttribute("id",`li${i}`)
             li.setAttribute("name",folderCurrent[x])
-            li.innerHTML = `<img src='Icons/logo.png'><p name='${folderCurrent[x]}' onclick="leftFolderClick(this.getAttribute('name'))")>${folderCurrent[x]}</p></img>`;
+            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'))"><img src='Icons/logo.png'><p>${folderCurrent[x]}</p></img></div>`;
             ul.appendChild(li)
             i++
         }else if (x==1 && folderCurrent[x]==""){
@@ -434,7 +405,7 @@ function openedFolder(){
             let li = document.createElement("li")
             li.setAttribute("id",`li${i}`)
             li.setAttribute("name",folderCurrent[x])
-            li.innerHTML = `<img src='Icons/logo.png'><p name='${folderCurrent[x]}' onclick="leftFolderClick(this.getAttribute('name'))")>${folderCurrent[x]}</p></img>`;
+            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'))"><img src='Icons/logo.png'><p name='${folderCurrent[x]}' onclick="leftFolderClick(this.getAttribute('name'))")>${folderCurrent[x]}</p></img></div>`;
             ul2.appendChild(li);
             document.getElementById(`li${i-1}`).appendChild(ul2)
             i++
@@ -443,27 +414,54 @@ function openedFolder(){
 
 }
 
-function leftFolderClick(name){
+window.leftFolderClick =  function (name){
     var folderCurrent = sessionStorage.getItem("currentPath").split("/")
     let contain = folderCurrent.indexOf(name)
-    var path = ""
+    var path = "";
+    console.log(123)
     for(let i=0; i<= contain;i++){
         if(i==0){
             path = path +folderCurrent[i]+"/"
         }else{
             path = path +"/"+folderCurrent[i]
         }
-        
+    
     }
 
     let checkVar1 = path.split("/")
-    let check = checkVar1.length
-    folderCurrent.length
+    var temp1 = [];
+    var pathG;
 
-    if(folderCurrent[folderCurrent.length]==checkVar1[checkVar1.length]){
+    for(let i of checkVar1)
+        i && temp1.push(i);
+    
+    for(let i in temp1){
+        if(i==0){
+            pathG = temp1[i];
+        }else{
+            pathG += "/"+temp1[i];
+        }
+    }
+    
 
+    var temp2 = [];
+    var pathL;
+    for(let i of folderCurrent)
+        i && temp2.push(i);
+        
+    for(let i in temp1){
+        if(i==0){
+            pathL = temp1[i];
+        }else{
+            pathL += "/"+temp1[i];
+        }
+    }
+
+    if(temp2[temp2.length-1]===temp1[temp1.length-1]){
+        console.log(123)
     }else{
-        sessionStorage.setItem("currentPath",path)
+        sessionStorage.setItem("previousPath",pathL);
+        sessionStorage.setItem("currentPath",pathG)
         document.getElementById("content").innerHTML="";
 
         start()
@@ -491,7 +489,7 @@ function startDisksCreate(data,x){
     div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()")
 }
 
-function listActions(elClass){
+window.listActions = function (elClass){
     if(elClass == "hidden" || elClass == ""){
         document.querySelector("#actions").className="showList";
         document.querySelector(`.${elClass}`).className = "visible";

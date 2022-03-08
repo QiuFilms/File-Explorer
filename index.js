@@ -18,10 +18,8 @@ app.on('ready', function(){
         hasShadow: false,
         icon:__dirname + './Icons/logo.png',
         resizable: true,
-        alwaysOnTop: false,
         vibrancy: 'ultra-dark',
         webPreferences: {
-            devTools: true,
             nodeIntegration: true,
             contextIsolation: false,
             enableRemoteModule: true,
@@ -41,7 +39,7 @@ app.on('ready', function(){
         slashes: true
     }));
     
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 });
 
 

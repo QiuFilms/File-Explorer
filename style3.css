@@ -656,6 +656,10 @@ h4 img{
     width: 100%;
 }
 
+.leftEl:hover{
+    cursor: pointer;
+}
+
 .showList{
     animation-name: showListAnim;
     animation-duration: 1s;
@@ -703,6 +707,8 @@ h4 img{
     animation-timing-function: ease;
     animation-fill-mode: forwards;
 }
+
+
 
 @keyframes showListAnim{
     from {

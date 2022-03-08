@@ -82,11 +82,9 @@
 
                 if(screen.availWidth != window.innerWidth){
                     window.resizeTo(screen.availWidth, screen.availHeight);
-                    document.getElementsByTagName("body")[0].style.borderRadius = "0px";
                 }else {
                     window.resizeTo(1400,800);
                     window.moveTo(250, 120);
-                    document.getElementsByTagName("body")[0].style.borderRadius = "10px";
                 };
                 return;
             }
@@ -191,7 +189,7 @@
     <div id="footer"></div>
     <img src="Icons/png.png" alt="" style="display: none;">
     <div>
-        <script src="./script.js"></script>
+        <script src="./script.js" type="module" defer></script>
     </div>
 </body>
 </html>
