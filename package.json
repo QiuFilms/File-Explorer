@@ -1,0 +1,36 @@
+{
+  "name": "App1",
+  "productName": "CST File Explorer",
+  "version": "1.0.0",
+  "description": "app",
+  "main": "./index.js",
+  "scripts": {
+    "start": "electron .",
+    "build-installer": "electron-builder"
+  },
+  "build": {
+    "appId": "CST File Explorer",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "Icons/logo_big.ico",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "installerIcon": "Icons/logo_big.ico",
+      "uninstallerIcon": "Icons/logo_big.ico",
+      "uninstallDisplayName": "CST File Explorer",
+      "license": "license.txt",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "author": "QiuFilms",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^13.1.7",
+    "electron-builder": "^22.13.1",
+    "jquery": "^3.6.0"
+  }
+}

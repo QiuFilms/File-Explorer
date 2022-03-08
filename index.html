@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CST File Explorer</title>  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="">
+  <link rel="stylesheet" type="text/css" href="style3.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+  <style>
+      #content{
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+      }
+      .folder_div{
+        flex: 1 0 21%;
+        max-width: 80px;
+        margin: 5px;
+        margin-top: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        word-break: break-all;
+        text-overflow:ellipsis; 
+        transition: 0.5s;
+      }
+      #folder_div:hover{
+          cursor: pointer;
+          background-color: rgb(233, 233, 233);
+      }
+
+      #disk_div{
+        margin-top: 0px;
+        width: 100%;
+        display: flex;
+        padding: 8px;
+        padding-left: 15px;
+        align-items: center;
+        transition: 0.5s;
+      }
+      #disk_div:hover{
+          cursor: pointer;
+          background-color: rgb(233, 233, 233);
+      }
+
+      #disk_div p {
+          padding-left:5px
+      }
+      #disk_div img{
+        max-width: 24px;
+      }
+
+
+
+
+
+  </style>
+  
+</head>
+
+<body>
+    <div id="top">
+        <div id="icon">
+            <img src="./Icons/logo.png">
+        </div>
+        <div id="icon2">
+            <p>This PC</p>
+        </div>
+        <div id="image" onclick="window.close();">
+            <img src="close.png">
+        </div>
+        <div id="image2" onclick="resize2();">
+            <img src="rectangle.png">
+            <script>
+                function resize2(){
+                console.log(screen.availWidth);
+                console.log(window.innerWidth);
+
+                if(screen.availWidth != window.innerWidth){
+                    window.resizeTo(screen.availWidth, screen.availHeight);
+                    document.getElementsByTagName("body")[0].style.borderRadius = "0px";
+                }else {
+                    window.resizeTo(1400,800);
+                    window.moveTo(250, 120);
+                    document.getElementsByTagName("body")[0].style.borderRadius = "10px";
+                };
+                return;
+            }
+            </script>
+        </div>
+        <div id="image3" onclick="minimize();">
+            <img src="substract.png">
+            <script>
+                function minimize(){
+                    const $ = require('jquery');
+                    const { remote } = require('electron');
+                    remote.BrowserWindow.getFocusedWindow().minimize();
+                }
+            </script>
+        </div>
+    </div>
+    <div id="top-bar" onclick="hide()">
+        <div id="openList" class="hidden" onclick="listActions(this.className)">
+            <img src="Arrows/ArrowE.png" id="arrow">
+        </div>
+        <div id="actions" style="visibility: hidden;">
+            <div class="action" id="CreateFolder" onclick="showCreator2()">
+                <img src="Icons/folder_add.png" alt="">
+            </div>
+            <div class="action" id="CreateFile" onclick="showCreator()">
+                <img src="Icons/file_add.png" alt="">
+            </div>
+            <div class="action" id="DeleteFile" onclick="showDelete()">
+                <img src="Icons/file_delete.png" alt="">
+            </div>
+            <div class="action" id="OpenCmd" onclick="openCmd();">
+                <img src="Icons/cmd2.png" alt="">
+            </div>
+        </div>
+        <div id="path">
+            <div id="arrowBack" onmouseenter="document.getElementById('arrowBackImg').src = 'Arrows/arrowB_blue.png'" onmouseleave="document.getElementById('arrowBackImg').src = 'Arrows/arrowB.png'" onclick="backClick();">
+                <img src="Arrows/arrowB.png" alt="" id="arrowBackImg">
+            </div>
+            <div contenteditable="true" id="path-text" onfocus="foc();"></div>
+        </div>
+    </div>
+    <div id="left-bar">
+        <h3>Devices & Disks:</h3>
+        <div id="disks"></div>
+        <br>
+            <h4 id="start" onclick="sessionStorage.setItem('currentPath',(this.id));content.innerHTML = '';document.querySelector('#openFolder').innerHTML = '';start()"><img src="Icons/computer.png"> This PC</h4>
+        <br>
+        <h4 style="margin-left: 10px;">Directory tree</h4>
+        <div id="openFolder">
+        </div>
+    </div>
+    <div id="sort">
+        <div id="fill">
+            <img src="Arrows/SortDown.png" alt="" onclick="sortDown();">
+            <img src="Arrows/SortRight.png" alt="" onclick="sortRight();">
+        </div>
+    </div>
+    <div id="content-outer" oncontextmenu="updateDisplay(event)" onclick="hide()">
+        <div id="contextMenu" style="display: none;">
+            <div id="new" class="contEle" onclick="showCreator();">Create file</div>
+            <div id="new" class="contEle" onclick="showCreator2();">Create folder</div>
+            <div id="new" class="contEle" onclick="showDelete();">Delete file/folder</div>
+            <div id="cmd" class="contEle" onclick="openCmd();">Open cmd</div>
+            <div id="refresh" class="contEle" onclick="document.querySelector('#content').innerHTML = '';start();">Refresh</div>
+        </div>
+        <div id="create" class="create" style="display: none;">
+            <div>
+                <p>Create</p>
+            </div>
+            <div id="input-div" class="input-div">
+                <label>Name</label>
+                <input type="text" id="create-input" class="create-input"placeholder="name.txt"><br>
+                <input type="button" value="Create" onclick="createFile();">
+                <input type="button" value="Close" onclick="document.getElementById('create').style.display = 'none'">
+            </div>
+        </div>
+        <div id="create2" class="create" style="display: none;">
+            <div>
+                <p>Create</p>
+            </div>
+            <div id="input-div2" class="input-div">
+                <label>Name</label>
+                <input type="text" id="create-input2" class="create-input" placeholder="name"><br>
+                <input type="button" value="Create" onclick="createFolder();">
+                <input type="button" value="Close" onclick="document.getElementById('create2').style.display = 'none'">
+            </div>
+        </div>
+        <div id="delete" class="create" style="display: none;">
+            <div>
+                <p>Delete</p>
+            </div>
+            <div id="input-div3" class="input-div">
+                <label>Name</label>
+                <input type="text" id="delete-input" class="create-input" placeholder="name"><br>
+                <input type="button" value="Delete" onclick="deleteFile();">
+                <input type="button" value="Close" onclick="document.getElementById('delete').style.display = 'none'">
+            </div>
+        </div>
+        <div id="content">
+        </div>
+    </div>
+    <div id="footer"></div>
+    <img src="Icons/png.png" alt="" style="display: none;">
+    <div>
+        <script src="./script.js"></script>
+    </div>
+</body>
+</html>
