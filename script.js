@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require('path');
-const d = document;
+const doc = document;
 var spawn = require("child_process").spawn
 const child = require('child_process');
 
 //Imports
 import listDrives from "./Functions/listDrives.js"
 import createDiskElement from "./Functions/createDiskElement.js"
-
+import ListStartDrives from "./Functions/listStartDrives.js";
 
 //ListDrives
 listDrives()
@@ -38,13 +38,13 @@ window.start = function(isFocused) {
                 var free = std[12].split("(")[1];
                 var total = std[29].split("(")[1];
             });
-            d.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> Start`;
-            let content = d.querySelector("#content")
+            doc.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> Start`;
+            let content = doc.querySelector("#content")
 
             let iter = data.length - 1;
             content.innerHTML = "<h2>Devices and drives<div></div></h2>"
             for(let x=0;x<=iter;x++){
-                startDisksCreate(data,x)
+                ListStartDrives(data,x)
             }
         } 
         listDrives().then((data) => startDrives(data))
@@ -53,10 +53,10 @@ window.start = function(isFocused) {
 
     let dir = sessionStorage.getItem("currentPath");
     if(isFocused==1){
-        d.querySelector("#path-text").innerHTML = `${dir}`;
+        doc.querySelector("#path-text").innerHTML = `${dir}`;
         document.getElementById("path-text").focus();
     }else{
-        d.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> ${dir}`;
+        doc.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> ${dir}`;
     }
     let files1 = fs.readdirSync(dir)
 
@@ -87,16 +87,16 @@ for(x in files1){
 
 
 function Folder() {
-    let div = d.createElement("div");
+    let div = doc.createElement("div");
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
     div.setAttribute("oncontextmenu","");
-    let content = d.getElementById("content");
+    let content = doc.getElementById("content");
     content.appendChild(div);
-    let folder = d.createElement("img");
+    let folder = doc.createElement("img");
     folder.setAttribute("src","Icons/logo.png");
     div.appendChild(folder);
-    let namef = d.createElement("p");
+    let namef = doc.createElement("p");
     div.setAttribute("long",files1[x]);
     if (files1[x].length >10){
         
@@ -114,14 +114,14 @@ function Folder() {
 }
 
 function File() {
-    let div = d.createElement("div");
+    let div = doc.createElement("div");
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
-    let content = d.getElementById("content");
+    let content = doc.getElementById("content");
     content.appendChild(div);
-    let file = d.createElement("img");
+    let file = doc.createElement("img");
     div.appendChild(file);
-    let namef = d.createElement("p");
+    let namef = doc.createElement("p");
     namef.setAttribute("id","folder-name");
     div.setAttribute("long",files1[x]);
     if (files1[x].length >10){
@@ -188,7 +188,6 @@ window.dirChange =  function () {
     for(let i of currentPath)
         i && temp1.push(i);
     
-    console.log(temp1)
     for(let i in temp1){
         if(i==0){
             pathG = temp1[i];
@@ -274,7 +273,7 @@ function createFile() {
 }
 
 
-let content = d.getElementById("content");
+let content = doc.getElementById("content");
 window.showCreator = function () {
     document.getElementById("create").style.display = "";
 }
@@ -418,7 +417,7 @@ window.leftFolderClick =  function (name){
     var folderCurrent = sessionStorage.getItem("currentPath").split("/")
     let contain = folderCurrent.indexOf(name)
     var path = "";
-    console.log(123)
+
     for(let i=0; i<= contain;i++){
         if(i==0){
             path = path +folderCurrent[i]+"/"
@@ -458,7 +457,6 @@ window.leftFolderClick =  function (name){
     }
 
     if(temp2[temp2.length-1]===temp1[temp1.length-1]){
-        console.log(123)
     }else{
         sessionStorage.setItem("previousPath",pathL);
         sessionStorage.setItem("currentPath",pathG)
@@ -466,27 +464,6 @@ window.leftFolderClick =  function (name){
 
         start()
     }
-}
-
-function startDisksCreate(data,x){
-    let div = d.createElement("div");
-    div.setAttribute("id","startDisk");
-    div.setAttribute("class","startDisk");
-    content.appendChild(div);
-    let folder = d.createElement("img");
-    if(data[x]=="C:"){
-        folder.setAttribute("src","Icons/drive_sys.png");
-    }else{
-        folder.setAttribute("src","Icons/drive2.png");
-    }
-    div.appendChild(folder);
-    let namef = d.createElement("p");
-    div.setAttribute("long",data[x]);
-    namef.innerHTML="Dysk: "+data[x];
-    namef.setAttribute("id","folder-name");
-    div.appendChild(namef);
-    div.setAttribute("name",data[x]+"/")
-    div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()")
 }
 
 window.listActions = function (elClass){

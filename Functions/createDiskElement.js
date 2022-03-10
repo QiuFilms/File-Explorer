@@ -1,31 +1,29 @@
 var spawn = require("child_process").spawn
 const child = require('child_process');
-const d = document;
+const doc = document;
 
 
 const createDiskElement = (data,x) => {
-        let div = d.createElement("div")
+        let div = doc.createElement("div")
         div.setAttribute("id","disk_div");
-        let leftBar = d.getElementById("disks");
+        let leftBar = doc.getElementById("disks");
         leftBar.appendChild(div);
-        let drive = d.createElement("img");
+        let drive = doc.createElement("img");
         drive.setAttribute("src","Icons/drive.png");
         div.appendChild(drive);
-        let namef = d.createElement("p");
+        let namef = doc.createElement("p");
         namef.setAttribute("id","drive_name");
         namef.innerHTML = data[x];
         div.appendChild(namef);
         let dname = `${data[x]}/`
         div.setAttribute("name",dname)
-        let content = d.getElementById("content");
+        let content = doc.getElementById("content");
         div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()");
-        label(data,namef,x);
-
-        
+        label(data,namef,x);   
 }
 
 function label(data,namef,x) {
-    child.exec('@chcp 65001 >nul & cmd /d/s/c  vol '+data[x],{encoding: "UTF-8"}, (error, stdout) => {
+    child.exec('@chcp 65001 >nul & cmd /doc/s/c  vol '+data[x],{encoding: "UTF-8"}, (error, stdout) => {
         var fields = stdout.split(' ');
         if (fields[6]=="no"){
             let nameLabel = "";
