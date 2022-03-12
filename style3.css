@@ -375,7 +375,10 @@ h2{
     width: 85%;
     height: 3%;
     background-color: #f1f1f1;
-    float:right
+    float:left;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 #fill{
@@ -384,9 +387,76 @@ h2{
     background-color: white;
     border-top-right-radius: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     overflow:hidden;
+    display: flex;
+}
+
+.tabs{
+    width: 85%;
+    padding-right: 0.5vw;
+    height: 100%;
+    background-color: #f1f1f1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.tabs:not(:first-child){
+    flex-direction: row-reverse;
+}
+
+.tab{
+    width: 10%;
+    height: 100%;
+    background-color: white;
+    float: right;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tab-active{
+    background-color: #e0efff;
+}
+
+.tab_name{
+    padding-left: 0.5vw;
+    width: 72%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab_close{
+    width: 20%;
+    opacity: 0;
+    transition: 0.2s;
+}
+.tab_close > img{
+    max-height: 10px;
+}
+
+.tab:hover > .tab_close{
+    opacity: 1;
+}
+
+#addTab {
+    padding-right: 0.2vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#addTab > img{
+    max-height: 24px;
+}
+
+#addTab > img{
+    filter: hue-rotate(45deg);
 }
 
 #fill img{

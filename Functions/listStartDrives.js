@@ -12,8 +12,9 @@ class Element {
 
     DivOper(){
         this.ElemDiv.setAttribute("class","startDisk");
+        this.ElemDiv.setAttribute("id",this.ElemName);
         this.ElemDiv.setAttribute("name",`${this.ElemName}/`)
-        this.ElemDiv.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()")
+        this.ElemDiv.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';updateTab();start()")
     }
 
     ParagraphInner(){
@@ -24,7 +25,7 @@ class Element {
         this.FolderElem.setAttribute("src",this.ImgSrc)
     }
 
-    ApeandAll(){
+    AppendAll(){
         this.ContentElem.appendChild(this.ElemDiv);
         this.ElemDiv.appendChild(this.FolderElem);
         this.ElemDiv.appendChild(this.Paragraph);
@@ -56,7 +57,7 @@ const ListStartDrives = (data,x) => {
         elem.DivOper();
         elem.ParagraphInner();
         elem.FolderOper()
-        elem.ApeandAll();
+        elem.AppendAll();
     }
 }
 

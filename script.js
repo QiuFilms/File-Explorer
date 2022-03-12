@@ -8,6 +8,8 @@ const child = require('child_process');
 import listDrives from "./Functions/listDrives.js"
 import createDiskElement from "./Functions/createDiskElement.js"
 import ListStartDrives from "./Functions/listStartDrives.js";
+import CreateTabElement from "./Functions/createTabElement.js";
+
 
 //ListDrives
 listDrives()
@@ -23,12 +25,16 @@ function getDrives(data) {
 
 
 //CurrentPath
-sessionStorage.setItem("currentPath","start");
-sessionStorage.setItem("previousPath","start");
+sessionStorage.setItem("currentPath","Start");
+sessionStorage.setItem("previousPath","Start");
+sessionStorage.setItem("CurrentTab","Tab");
+sessionStorage.setItem("NumberOfTabs",1);
+sessionStorage.setItem("Number",1);
+sessionStorage.setItem("BiggestTabId","Tab");
 
 
 window.start = function(isFocused) {
-    if(sessionStorage.getItem("currentPath")=="start"){
+    if(sessionStorage.getItem("currentPath")=="Start"){
         function startDrives(data){
             child.exec('fsutil volume diskfree c:/',{encoding: "UTF-8"}, (err, stdout, stderr) => {
                 if (err) {
@@ -163,7 +169,7 @@ function File() {
     div.setAttribute("onclick",`openFile('"${fdir}"');`)
 }
 
-window.openFile = function (fdir){
+window.openFile = (fdir) => {
     child.exec(fdir)
 }
 
@@ -180,7 +186,100 @@ function defineExtension(){
 }
 
 }
-window.dirChange =  function () {
+
+window.tabElements = () => {
+    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
+    let TabId = sessionStorage.getItem('CurrentTab')
+
+    if(path.length == 1){
+        CreateTabElement(path[0],TabId)
+    }else{
+        CreateTabElement(path[path.length-1],TabId)
+    }
+    doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.display = "none"
+    doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.cursor = "auto"
+    doc.querySelector('#tabs').querySelector(".tab").classList.add("tab-active")
+}
+tabElements()
+
+window.updateTab = () => {
+    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
+    doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).querySelector('.tab_name').innerHTML = path[path.length-1] 
+    doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).setAttribute("Path",sessionStorage.getItem("currentPath"))
+}
+
+window.addTab = () => {
+
+    sessionStorage.setItem("currentPath","Start");
+    sessionStorage.setItem("previousPath","Start");
+    sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")+1);
+    sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))+1);
+
+    console.log(sessionStorage.getItem("Number"))
+    if(sessionStorage.getItem("Number")>=10){
+        doc.querySelector("#addTab").style.display = "none"
+    }
+
+    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
+
+    if(path.length == 1){
+        sessionStorage.setItem("CurrentTab",`Tab${sessionStorage.getItem("Number")}`);
+        sessionStorage.setItem("BiggesyTabId",`Tab${sessionStorage.getItem("Number")}`);
+        CreateTabElement(path[0],`Tab${sessionStorage.getItem("Number")}`)
+    }else{
+        sessionStorage.setItem("CurrentTab",`Tab${sessionStorage.getItem("Number")}`);
+        sessionStorage.setItem("BiggesyTabId",`Tab${sessionStorage.getItem("Number")}`);
+        CreateTabElement(path[path.length-1],`Tab${sessionStorage.getItem("Number")}`)
+    
+    }
+
+    start()
+}
+
+
+window.removeTab = (TabId) => {
+    sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")-1);
+    sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))-1);
+    let tabList = doc.querySelector("#tabs")
+    let removedItem = doc.getElementById(TabId.parentNode.id)
+
+    if(sessionStorage.getItem("Number")<10){
+        doc.querySelector("#addTab").style.display = "block"
+    }
+
+    if(tabList.length < 2){
+    }else{
+        let newTabPath = tabList.children[1].attributes['path'].value
+        let newTabId = tabList.children[1].id
+        tabList.children[1].classList.add("tab-active")
+        sessionStorage.setItem("currentPath",newTabPath);
+        sessionStorage.setItem("CurrentTab",newTabId);
+        removedItem.remove()
+
+        content.innerHTML = ""
+        start()
+    }
+
+}
+
+window.changeTab = (TabId,Path) => {
+    sessionStorage.setItem("currentPath",Path);
+    sessionStorage.setItem("CurrentTab",TabId);
+
+    let content = doc.getElementById("content");
+    content.innerHTML = ""
+
+    let TabClasses = doc.querySelectorAll(".tab").forEach(el => {
+        el.classList.remove("tab-active")
+    });
+    
+    doc.getElementById(TabId).classList.add("tab-active")
+
+    start()
+}
+
+
+window.dirChange =  () => {
     var currentPath = sessionStorage.getItem('currentPath').split("/")
     var temp1 = [];
     var pathG;
@@ -200,11 +299,11 @@ window.dirChange =  function () {
     sessionStorage.setItem('currentPath',(pathG+sessionStorage.getItem("folderPath")))
 
     content.innerHTML = "";
-    
+    console.log(123)
+    updateTab()
     start(0)
 }
 start(0)
-
 
 function logButtons(e) {
     if(e.buttons==8){
@@ -220,7 +319,7 @@ function logButtons(e) {
     }
 }
 
-window.backClick =  function (){
+window.backClick =  () => {
         var fields = sessionStorage.getItem("currentPath").split('/');
 
         var last = fields[fields.length-1]
@@ -229,9 +328,12 @@ window.backClick =  function (){
 
         sessionStorage.setItem("currentPath",prev);
         content.innerHTML = "";
+        updateTab()
         start()
     
 }
+
+
 document.addEventListener('mousedown', logButtons);
 
 
@@ -239,17 +341,17 @@ var box = document.querySelector("#content-outer");
 var pageX = document.getElementById("x");
 var pageY = document.getElementById("y");
 
-window.updateDisplay =  function (event) {
+window.updateDisplay =  (event) => {
     document.getElementById("contextMenu").style.display = "";
-    document.getElementById("contextMenu").style.left=event.pageX-160+"px";
-    document.getElementById("contextMenu").style.top=event.pageY-80+"px";
+    document.getElementById("contextMenu").style.left=event.offsetX+"px";
+    document.getElementById("contextMenu").style.top=event.offsetY+"px";
 }
 
-window.hide = function() {
+window.hide = () => {
     document.getElementById('contextMenu').style.display = 'none';
 }
 
-window.openCmd = function () {
+window.openCmd =  () => {
 
         if(__dirname.slice(0,2)==sessionStorage.getItem("currentPath").slice(0,2)){
             child.exec(`cd ${sessionStorage.getItem("currentPath").slice(0,2)}/ & cd ${sessionStorage.getItem("currentPath")} & start cmd.exe`);
@@ -286,7 +388,7 @@ window.showDelete =  function () {
 }
 
 
-function createFolder() {
+window.createFolder = () => {
     document.getElementById("create2").style.display = "";
     let input = document.getElementById("create-input2");
     let inpPath = sessionStorage.getItem("currentPath")+"/"+input.value;
@@ -299,11 +401,18 @@ function createFolder() {
     start()
 }
 
-function deleteFile() {
+window.deleteFile = () => {
     document.getElementById("delete").style.display = "";
     let input = document.getElementById("delete-input");
     let inpPath = sessionStorage.getItem("currentPath")+"/"+input.value;
-    fs.unlinkSync(inpPath);
+    if(input.value.includes(".")){
+        fs.unlinkSync(inpPath);
+    }else{
+        fs.rmdirSync(inpPath)
+    }
+
+    
+
 
     content.innerHTML = "";
     input.value = "";
@@ -312,19 +421,19 @@ function deleteFile() {
 }
 
 
-function sortDown(){
+window.sortDown = () => {
     document.getElementById("content").style.flexDirection = "column";
     sessionStorage.setItem("view","down")
     let fold = document.getElementsByClassName("folder_div")
     let num = fold.length;
     for(let x = 0;x<num;x++){
         fold[x].style.flexDirection = "row";
-        fold[x].style.maxWidth = "600px";
+        fold[x].style.maxWidth = "100%";
         fold[x].children[1].innerHTML = `${fold[x].getAttribute('long')}`
     }
 }
 
-function sortRight(){
+window.sortRight = () => {
     document.getElementById("content").style.flexDirection = "row";
     sessionStorage.setItem("view","right")
     let fold = document.getElementsByClassName("folder_div")
@@ -336,7 +445,7 @@ function sortRight(){
     }
 }
 
-function checkView(){
+window.checkView = () => {
     if(sessionStorage.getItem("view")=="down"){
         sortDown()
     }else if(sessionStorage.getItem("view")=="right"){
@@ -395,7 +504,7 @@ function openedFolder(){
             let li = document.createElement("li")
             li.setAttribute("id",`li${i}`)
             li.setAttribute("name",folderCurrent[x])
-            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'))"><img src='Icons/logo.png'><p>${folderCurrent[x]}</p></img></div>`;
+            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'));updateTab()"><img src='Icons/logo.png'><p>${folderCurrent[x]}</p></img></div>`;
             ul.appendChild(li)
             i++
         }else if (x==1 && folderCurrent[x]==""){
@@ -404,7 +513,7 @@ function openedFolder(){
             let li = document.createElement("li")
             li.setAttribute("id",`li${i}`)
             li.setAttribute("name",folderCurrent[x])
-            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'))"><img src='Icons/logo.png'><p name='${folderCurrent[x]}' onclick="leftFolderClick(this.getAttribute('name'))")>${folderCurrent[x]}</p></img></div>`;
+            li.innerHTML = `<div name='${folderCurrent[x]}' class='leftEl' onclick="leftFolderClick(this.getAttribute('name'));updateTab()"><img src='Icons/logo.png'><p name='${folderCurrent[x]}' onclick="leftFolderClick(this.getAttribute('name'))")>${folderCurrent[x]}</p></img></div>`;
             ul2.appendChild(li);
             document.getElementById(`li${i-1}`).appendChild(ul2)
             i++
@@ -478,3 +587,27 @@ window.listActions = function (elClass){
     }
 
 }
+
+const { networkInterfaces } = require('os');
+
+const nets = networkInterfaces();
+const results = {}
+
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+        if (net.family === 'IPv4' && !net.internal) {
+            if (!results[name]) {
+                results[name] = [];
+            }
+            results[name].push(net.address);
+            console.log(results)
+        }
+    }
+}
+
+var os = require('os');
+
+var networkInterface = os.networkInterfaces();
+
+console.log(networkInterface);

@@ -18,7 +18,7 @@ const createDiskElement = (data,x) => {
         let dname = `${data[x]}/`
         div.setAttribute("name",dname)
         let content = doc.getElementById("content");
-        div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));content.innerHTML = '';start()");
+        div.setAttribute("onclick","sessionStorage.setItem('currentPath',(this.attributes['name'].value));updateTab();content.innerHTML = '';start()");
         label(data,namef,x);   
 }
 
