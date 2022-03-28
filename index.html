@@ -138,8 +138,12 @@
     </div>
     <div id="sort">
         <div id="fill">
-            <img src="Arrows/SortDown.png" alt="" onclick="sortDown();">
-            <img src="Arrows/SortRight.png" alt="" onclick="sortRight();">
+            <div onclick="sortDown();">
+                <img src="Arrows/SortDown.png" alt="">
+            </div>
+            <div onclick="sortRight();"">
+                <img src="Arrows/SortRight.png" alt="">
+            </div>
         </div>
 
         <div class="tabs" id="tabs">
@@ -151,10 +155,24 @@
     </div>
     <div id="content-outer" oncontextmenu="updateDisplay(event)" onclick="hide()">
         <div id="contextMenu" style="display: none;">
+            <div id="title" class="contEle">
+                <h4>Menu</h4>
+            </div>
             <div id="new" class="contEle" onclick="showCreator();">Create file</div>
             <div id="new" class="contEle" onclick="showCreator2();">Create folder</div>
             <div id="new" class="contEle" onclick="showDelete();">Delete file/folder</div>
             <div id="cmd" class="contEle" onclick="openCmd();">Open cmd</div>
+            <div id="refresh" class="contEle" onclick="document.querySelector('#content').innerHTML = '';start();">Refresh</div>
+        </div>
+
+        <div id="contextMenuFolder" style="display: none;">
+            <div id="title" class="contEle">
+                <h4>Folder menu</h4>
+            </div>
+            <div id="new" class="contEle" onclick="openFolderFromMenu(event,this)">Open folder/file</div>
+            <div id="new" class="contEle" onclick="deleteFolderFromMenu(event,this)">Delete folder/file</div>
+            <div id="new" class="contEle" onclick="saveRenameItem(event,this)">Rename folder/file</div>
+            <div id="cmd" class="contEle" onclick="">Open cmd</div>
             <div id="refresh" class="contEle" onclick="document.querySelector('#content').innerHTML = '';start();">Refresh</div>
         </div>
         <div id="create" class="create" style="display: none;">
@@ -188,6 +206,17 @@
                 <input type="text" id="delete-input" class="create-input" placeholder="name"><br>
                 <input type="button" value="Delete" onclick="deleteFile();">
                 <input type="button" value="Close" onclick="document.getElementById('delete').style.display = 'none'">
+            </div>
+        </div>
+        <div id="rename" class="create" style="display: none;">
+            <div>
+                <p>Rename</p>
+            </div>
+            <div id="input-div4" class="input-div">
+                <label>Name</label>
+                <input type="text" id="rename-input" class="create-input"placeholder="name"><br>
+                <input type="button" value="Rename" onclick="renameItem();">
+                <input type="button" value="Close" onclick="document.getElementById('rename').style.display = 'none'">
             </div>
         </div>
         <div id="content">

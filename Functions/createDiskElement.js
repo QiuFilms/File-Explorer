@@ -25,12 +25,15 @@ const createDiskElement = (data,x) => {
 function label(data,namef,x) {
     child.exec('@chcp 65001 >nul & cmd /doc/s/c  vol '+data[x],{encoding: "UTF-8"}, (error, stdout) => {
         var fields = stdout.split(' ');
+        console.log(fields[6])
         if (fields[6]=="no"){
             let nameLabel = "";
             namef.innerHTML=namef.innerHTML+" "+nameLabel;
         }else if(fields[6]==undefined){
             let nameLabel = "Dysk sieciowy lub napęd";
             namef.innerHTML=namef.innerHTML+" "+nameLabel;
+        }else if(fields[6].includes(__dirname)){
+            return 0;
         }else{
             let nameLabel = fields[6];
             namef.innerHTML=namef.innerHTML+" "+nameLabel;

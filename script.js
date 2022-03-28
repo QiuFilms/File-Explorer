@@ -34,7 +34,7 @@ sessionStorage.setItem("BiggestTabId","Tab");
 
 
 window.start = function(isFocused) {
-    if(sessionStorage.getItem("currentPath")=="Start"){
+    if(sessionStorage.getItem("currentPath")=="Start" || sessionStorage.getItem("currentPath")=="start"){
         function startDrives(data){
             child.exec('fsutil volume diskfree c:/',{encoding: "UTF-8"}, (err, stdout, stderr) => {
                 if (err) {
@@ -57,6 +57,9 @@ window.start = function(isFocused) {
 
     }else{
 
+    if(sessionStorage.getItem("currentPath").length == 2){
+        sessionStorage.setItem("currentPath",sessionStorage.getItem("currentPath")+"/")
+    }
     let dir = sessionStorage.getItem("currentPath");
     if(isFocused==1){
         doc.querySelector("#path-text").innerHTML = `${dir}`;
@@ -73,22 +76,32 @@ window.start = function(isFocused) {
 
     openedFolder()
     
-const pattern = new RegExp(/\.[0-9a-z]+$/i)
-for(x in files1){
-
-    var test = pattern.test(files1[x]);
-    if(!test){
-        Folder()
+    if(dir.length > 3){
+        dir += "/" 
     }
 
+const pattern = new RegExp(/\.[0-9a-z]+$/i)
+for(x in files1){
+    //var test = pattern.test(files1[x]);
+    let isDirExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isDirectory();
+    if(isDirExists){
+        Folder()
+    }
+    //if(fs.lstatSync(files1[x]).isDirectory()){
+        //Folder()
+    
 }
 for(x in files1){
 
-    var test = pattern.test(files1[x]);
-    if(test){
+    //var test = pattern.test(files1[x]);
+    
+    let isFileExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isFile();
+    if(isFileExists){
         File()
-        
     }
+    //if(fs.lstatSync(files1[x]).isFile()){
+    //    File()
+
 }
 
 
@@ -96,7 +109,7 @@ function Folder() {
     let div = doc.createElement("div");
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
-    div.setAttribute("oncontextmenu","");
+    div.setAttribute("oncontextmenu","cont(event,this)");
     let content = doc.getElementById("content");
     content.appendChild(div);
     let folder = doc.createElement("img");
@@ -173,6 +186,80 @@ window.openFile = (fdir) => {
     child.exec(fdir)
 }
 
+window.cont = (e,elem) => {
+    e.stopPropagation();
+    updateDisplayFolder(e,elem)
+}
+
+window.openFolderFromMenu = (e,elem) => {
+    e.stopPropagation();
+    sessionStorage.setItem('folderPath',(elem.parentElement.parentElement.attributes['name'].value));
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    dirChange()
+}
+
+window.deleteFolderFromMenu = (e,elem) => {
+    let dir = sessionStorage.getItem("currentPath");
+    if(dir > 3){
+        dir += "/"
+    }
+    console.log(dir+elem.parentElement.parentElement.attributes["long"].value)
+    let isDirExists = fs.existsSync(dir+elem.parentElement.parentElement.attributes["long"].value) && fs.lstatSync(dir+elem.parentElement.parentElement.attributes["long"].value).isDirectory();
+    let isFileExists = fs.existsSync(dir+elem.parentElement.parentElement.attributes["long"].value) && fs.lstatSync(dir+elem.parentElement.parentElement.attributes["long"].value).isFile();
+    if(isFileExists){
+        fs.unlinkSync(dir+elem.parentElement.parentElement.attributes["long"].value);
+    }else if(isDirExists){
+        fs.rmdirSync(dir+elem.parentElement.parentElement.attributes["long"].value)
+    }
+    e.stopPropagation();
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    content.innerHTML = "";
+    start()
+}
+
+window.saveRenameItem = (e,elem) => {
+    e.stopPropagation();
+    let dir = sessionStorage.getItem("currentPath");    
+    if(dir > 3){
+        dir += "/"
+    }
+
+    let name = dir+elem.parentElement.parentElement.attributes["long"].value;
+    console.log(name)
+    sessionStorage.setItem("renameName",name)
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+
+    document.querySelector("#rename").style.display = "";
+}
+window.renameItem = () => {
+    let oldName = sessionStorage.getItem("renameName")
+    let dir = sessionStorage.getItem("currentPath");   
+    if(dir > 3){
+        dir += "/"
+    }
+
+    let input = document.querySelector("#rename-input")
+    fs.renameSync(oldName,dir+input.value)
+    content.innerHTML = "";
+    start();
+}
+
+window.updateDisplayFolder =  (e,elem) => {
+    e.stopPropagation();
+    let contextMenuFolder = document.getElementById("contextMenuFolder")
+    elem.appendChild(contextMenuFolder)
+    document.getElementById('contextMenu').style.display = 'none';
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    contextMenuFolder.style.display = "";
+    contextMenuFolder.style.left=elem.offsetLeft+50+"px";
+    contextMenuFolder.style.top=elem.offsetTop+50+"px";
+}
+
+
+
 function defineExtension(){
     var fileExt = files1[x].split('.').pop();
     
@@ -199,13 +286,18 @@ window.tabElements = () => {
     doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.display = "none"
     doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.cursor = "auto"
     doc.querySelector('#tabs').querySelector(".tab").classList.add("tab-active")
+    doc.querySelector('#tabs').querySelector(".tab").classList.add("main")
 }
 tabElements()
 
 window.updateTab = () => {
     let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
-    doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).querySelector('.tab_name').innerHTML = path[path.length-1] 
-    doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).setAttribute("Path",sessionStorage.getItem("currentPath"))
+
+        doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).querySelector('.tab_name').innerHTML = path[path.length-1] 
+        doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).setAttribute("Path",sessionStorage.getItem("currentPath"))
+        document.getElementById("contextMenuFolder").style.display = 'none';
+        document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+
 }
 
 window.addTab = () => {
@@ -215,7 +307,6 @@ window.addTab = () => {
     sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")+1);
     sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))+1);
 
-    console.log(sessionStorage.getItem("Number"))
     if(sessionStorage.getItem("Number")>=10){
         doc.querySelector("#addTab").style.display = "none"
     }
@@ -249,9 +340,9 @@ window.removeTab = (TabId) => {
 
     if(tabList.length < 2){
     }else{
-        let newTabPath = tabList.children[1].attributes['path'].value
-        let newTabId = tabList.children[1].id
-        tabList.children[1].classList.add("tab-active")
+        let newTabPath = tabList.children[0].attributes['path'].value
+        let newTabId = tabList.children[0].id
+        tabList.children[0].classList.add("tab-active")
         sessionStorage.setItem("currentPath",newTabPath);
         sessionStorage.setItem("CurrentTab",newTabId);
         removedItem.remove()
@@ -263,17 +354,35 @@ window.removeTab = (TabId) => {
 }
 
 window.changeTab = (TabId,Path) => {
-    sessionStorage.setItem("currentPath",Path);
-    sessionStorage.setItem("CurrentTab",TabId);
-
-    let content = doc.getElementById("content");
-    content.innerHTML = ""
-
-    let TabClasses = doc.querySelectorAll(".tab").forEach(el => {
-        el.classList.remove("tab-active")
-    });
+    if(doc.querySelector(`#${TabId}`)){
+        sessionStorage.setItem("currentPath",Path);
+        sessionStorage.setItem("CurrentTab",TabId);
     
-    doc.getElementById(TabId).classList.add("tab-active")
+        let content = doc.getElementById("content");
+        content.innerHTML = ""
+    
+        let TabClasses = doc.querySelectorAll(".tab").forEach(el => {
+            el.classList.remove("tab-active")
+        });
+        
+        doc.getElementById(TabId).classList.add("tab-active")
+    }else{
+        let tabList = doc.querySelector("#tabs")
+        let newTabPath = tabList.children[0].attributes['path'].value
+        let newTabId = tabList.children[0].id
+        tabList.children[0].classList.add("tab-active")
+        sessionStorage.setItem("currentPath",newTabPath);
+        sessionStorage.setItem("CurrentTab",newTabId);
+        let content = doc.getElementById("content");
+        content.innerHTML = ""
+    
+        let TabClasses = doc.querySelectorAll(".tab").forEach(el => {
+            el.classList.remove("tab-active")
+        });
+        tabList.children[0].classList.add("tab-active")
+
+    }
+ 
 
     start()
 }
@@ -299,7 +408,6 @@ window.dirChange =  () => {
     sessionStorage.setItem('currentPath',(pathG+sessionStorage.getItem("folderPath")))
 
     content.innerHTML = "";
-    console.log(123)
     updateTab()
     start(0)
 }
@@ -337,18 +445,19 @@ window.backClick =  () => {
 document.addEventListener('mousedown', logButtons);
 
 
-var box = document.querySelector("#content-outer");
-var pageX = document.getElementById("x");
-var pageY = document.getElementById("y");
 
 window.updateDisplay =  (event) => {
     document.getElementById("contextMenu").style.display = "";
     document.getElementById("contextMenu").style.left=event.offsetX+"px";
     document.getElementById("contextMenu").style.top=event.offsetY+"px";
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
 }
 
 window.hide = () => {
     document.getElementById('contextMenu').style.display = 'none';
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
 }
 
 window.openCmd =  () => {
@@ -470,6 +579,7 @@ input.addEventListener("keyup", function() {
    document.getElementById("path-text").innerHTML = search[0];
    document.getElementById("content").innerHTML = "";
    document.getElementById("path-text").focus()
+   updateTab()
    start(1)
    input.setAttribute("contenteditable","true")
   }
