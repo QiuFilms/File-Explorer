@@ -26,6 +26,7 @@ class TabElement {
         this.ElemTab.appendChild(this.ElemTabName)
         this.ElemTab.setAttribute("path",this.Path)
         this.ElemTab.setAttribute("onclick","changeTab(this.id,this.attributes['path'].value)")
+        this.ElemTab.setAttribute("ondragover","setTimeout(changeTab(this.id,this.attributes['path'].value),1000)")
         this.ElemTab.setAttribute("TabName",this.CurrentTab)
         this.ElemTabName.innerHTML = this.TabName
 
@@ -38,8 +39,13 @@ class TabElement {
     }
 
     setClassesAndIds(){
-        this.ElemTab.classList = "tab"
+        doc.querySelectorAll(".tab").forEach(el => {
+            el.classList.remove("tab-active")
+        });
+        
+        this.ElemTab.classList = "tab tab-active"
         this.ElemTab.id = this.TabId
+
 
         this.ElemTabName.classList = "tab_name"
         this.ElemTabClose.classList = "tab_close"

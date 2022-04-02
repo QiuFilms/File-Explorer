@@ -110,6 +110,9 @@ function Folder() {
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
     div.setAttribute("oncontextmenu","cont(event,this)");
+    div.setAttribute("draggable","true");
+    div.setAttribute("ondragstart","dragStartFun(event)");
+    div.setAttribute("ondrop","onDropFolder(event,this)");
     let content = doc.getElementById("content");
     content.appendChild(div);
     let folder = doc.createElement("img");
@@ -129,13 +132,107 @@ function Folder() {
     div.appendChild(namef);
     let fdir = `/${files1[x]}`
     div.setAttribute("name",fdir)
-    div.setAttribute("onclick","sessionStorage.setItem('folderPath',(this.attributes['name'].value));dirChange()")
+    div.setAttribute("ondblclick","sessionStorage.setItem('folderPath',(this.attributes['name'].value));dirChange()")
+}
+
+window.dragStartFun = (ev) => {
+    if(ev.target.getAttribute("long")==null){
+        sessionStorage.setItem("dragedElem",sessionStorage.getItem("currentPath")+"/"+ev.target.parentElement.getAttribute("long"))
+    }else{
+        sessionStorage.setItem("dragedElem",sessionStorage.getItem("currentPath")+"/"+ev.target.getAttribute("long"))
+    }
+
+}
+
+window.drop = () =>{
+    const [pathG,pathG2] = destructPath()
+
+
+    console.log(pathG)
+    console.log(pathG2)
+    child.exec(`move ${pathG2} ${pathG}`,{encoding: "UTF-8"}, (err, stdout, stderr) => {
+        if (err) {
+        return;
+        }else{
+            content.innerHTML=""
+            start()
+        }
+
+    });
+}
+
+window.onDropFolder = (e,elem) =>{
+    e.stopPropagation();
+    console.log(133)
+    const [pathG,pathG2] = destructPath()
+    let foldName = "\\"+elem.getAttribute("long");
+
+    child.exec(`move ${pathG2} ${pathG+foldName}`,{encoding: "UTF-8"}, (err, stdout, stderr) => {
+        if (err) {
+        return;
+        }else{
+            content.innerHTML=""
+            start()
+        }
+
+    });
+
+}
+
+window.allowDrop = (ev) => {
+    ev.preventDefault();
+}
+
+function destructPath(){
+    let dest = sessionStorage.getItem("currentPath").split("/");
+    let src = sessionStorage.getItem("dragedElem").split("/");
+
+    var temp1 = [];
+    var pathG;
+
+    for(let i of dest)
+        i && temp1.push(i);
+    
+    for(let i in temp1){
+        if(i==0){
+            if(temp1.length == 1){
+                pathG = temp1[i]+"\\";
+            }else{
+                pathG = temp1[i];
+            }
+        }else{
+            pathG += "\\"+temp1[i];
+        }
+    }
+
+    var temp1 = [];
+    var pathG2;
+
+    for(let i of src)
+        i && temp1.push(i);
+    
+    for(let i in temp1){
+        if(i==0){
+            if(temp1.length == 1){
+                pathG2 = temp1[i]+"\\";
+            }else{
+                pathG2 = temp1[i];
+            }
+        }else{
+            pathG2 += "\\"+temp1[i];
+        }
+    }
+
+    return [pathG,pathG2]
 }
 
 function File() {
     let div = doc.createElement("div");
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
+    div.setAttribute("draggable","true");
+    div.setAttribute("ondragstart","dragStartFun(event)");
+    div.setAttribute("ondrop","onDropFolder(event)");
     let content = doc.getElementById("content");
     content.appendChild(div);
     let file = doc.createElement("img");
@@ -179,7 +276,7 @@ function File() {
     div.appendChild(namef);
     let fdir = sessionStorage.getItem('currentPath')+`/${files1[x]}`;
     div.setAttribute("name",fdir)
-    div.setAttribute("onclick",`openFile('"${fdir}"');`)
+    div.setAttribute("ondblclick",`openFile('"${fdir}"');`)
 }
 
 window.openFile = (fdir) => {
@@ -204,13 +301,12 @@ window.deleteFolderFromMenu = (e,elem) => {
     if(dir > 3){
         dir += "/"
     }
-    console.log(dir+elem.parentElement.parentElement.attributes["long"].value)
     let isDirExists = fs.existsSync(dir+elem.parentElement.parentElement.attributes["long"].value) && fs.lstatSync(dir+elem.parentElement.parentElement.attributes["long"].value).isDirectory();
     let isFileExists = fs.existsSync(dir+elem.parentElement.parentElement.attributes["long"].value) && fs.lstatSync(dir+elem.parentElement.parentElement.attributes["long"].value).isFile();
     if(isFileExists){
         fs.unlinkSync(dir+elem.parentElement.parentElement.attributes["long"].value);
     }else if(isDirExists){
-        fs.rmdirSync(dir+elem.parentElement.parentElement.attributes["long"].value)
+        fs.rmdirSync(dir+elem.parentElement.parentElement.attributes["long"].value, {recursive: true, force: true})
     }
     e.stopPropagation();
     document.getElementById("contextMenuFolder").style.display = 'none';
@@ -227,7 +323,6 @@ window.saveRenameItem = (e,elem) => {
     }
 
     let name = dir+elem.parentElement.parentElement.attributes["long"].value;
-    console.log(name)
     sessionStorage.setItem("renameName",name)
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
@@ -277,7 +372,7 @@ function defineExtension(){
 window.tabElements = () => {
     let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
     let TabId = sessionStorage.getItem('CurrentTab')
-
+    console.log(sessionStorage.getItem("currentPath"))
     if(path.length == 1){
         CreateTabElement(path[0],TabId)
     }else{
@@ -300,9 +395,9 @@ window.updateTab = () => {
 
 }
 
-window.addTab = () => {
+window.addTab = (pathStart = "Start") => {
 
-    sessionStorage.setItem("currentPath","Start");
+    sessionStorage.setItem("currentPath",pathStart);
     sessionStorage.setItem("previousPath","Start");
     sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")+1);
     sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))+1);
@@ -327,6 +422,19 @@ window.addTab = () => {
     start()
 }
 
+window.openInNewTab = (elem) =>{
+    if(sessionStorage.getItem("currentPath").length == 3){
+        var path = sessionStorage.getItem("currentPath")+elem.parentElement.parentElement.getAttribute("long")
+    }else{
+        var path = sessionStorage.getItem("currentPath")+"/"+elem.parentElement.parentElement.getAttribute("long")
+    }
+    
+
+    console.log(path)
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    content.innerHTML = ""
+    addTab(path)
+}
 
 window.removeTab = (TabId) => {
     sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")-1);
@@ -376,9 +484,10 @@ window.changeTab = (TabId,Path) => {
         let content = doc.getElementById("content");
         content.innerHTML = ""
     
-        let TabClasses = doc.querySelectorAll(".tab").forEach(el => {
+        doc.querySelectorAll(".tab").forEach(el => {
             el.classList.remove("tab-active")
         });
+
         tabList.children[0].classList.add("tab-active")
 
     }
@@ -415,15 +524,7 @@ start(0)
 
 function logButtons(e) {
     if(e.buttons==8){
-        var fields = sessionStorage.getItem("currentPath").split('/');
-
-        var last = fields[fields.length-1]
-
-        var prev = sessionStorage.getItem("currentPath").replace("/"+last, '')
-
-        sessionStorage.setItem("currentPath",prev);
-        content.innerHTML = "";
-        start()
+        backClick()
     }
 }
 
@@ -443,7 +544,6 @@ window.backClick =  () => {
 
 
 document.addEventListener('mousedown', logButtons);
-
 
 
 window.updateDisplay =  (event) => {
@@ -469,7 +569,7 @@ window.openCmd =  () => {
         }
 }
 
-function createFile() {
+window.createFile = () => {
     document.getElementById("create").style.display = "";
     let input = document.getElementById("create-input");
     let inpPath = sessionStorage.getItem("currentPath")+"/"+input.value;
