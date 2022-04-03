@@ -393,6 +393,31 @@ h2{
     display: flex;
 }
 
+.settings{
+    padding: 5px;
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    transition: 0.5s;
+    overflow: hidden;
+}
+
+.settings img{
+    max-height: 25px;
+    padding: 0 3px 0 3px;
+    transition: 0.5s;
+}
+
+.settings:hover img{
+    transform: rotate(90deg);
+}
+
+.settings:hover{
+    background-color: rgb(231, 231, 231);
+    cursor: pointer;
+}
+
 .tabs{
     width: 85%;
     padding-right: 0.5vw;
@@ -499,6 +524,13 @@ h2{
     border-bottom: 0;
 }
 
+#contextMenuFile{
+    position: absolute;
+    width: 160px;
+    border:1px solid rgb(65, 65, 65);
+    border-bottom: 0;
+}
+
 .contEle{
     border-bottom:1px solid rgb(65, 65, 65);
     background-color: rgb(246, 246, 246);
@@ -509,8 +541,36 @@ h2{
     transition: 0.5s;
 
 }
+
 .contEle:hover{
     background-color: rgb(231, 231, 231);
+    cursor: pointer;
+}
+
+.downList{
+    padding-top: 5px;
+    flex-direction: column;
+    height: auto;
+    min-height: 25px;
+    align-items: flex-start;
+}
+
+.ol-List:first-child{
+    margin-top: 5px;
+}
+
+.downList li{
+    padding: 5px 0 5px 25px;
+    margin-left: -20px;
+    width: 135px;
+    border-top:1px solid rgb(65, 65, 65);
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+}
+
+.ol-Elem:hover{
+    background-color: rgb(254, 254, 254);
     cursor: pointer;
 }
 

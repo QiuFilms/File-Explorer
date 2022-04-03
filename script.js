@@ -3,12 +3,15 @@ const path = require('path');
 const doc = document;
 var spawn = require("child_process").spawn
 const child = require('child_process');
+const config = require("./Config/config.json")
 
 //Imports
 import listDrives from "./Functions/listDrives.js"
 import createDiskElement from "./Functions/createDiskElement.js"
 import ListStartDrives from "./Functions/listStartDrives.js";
 import CreateTabElement from "./Functions/createTabElement.js";
+
+
 
 
 //ListDrives
@@ -230,6 +233,7 @@ function File() {
     let div = doc.createElement("div");
     div.setAttribute("id","folder_div");
     div.setAttribute("class","folder_div");
+    div.setAttribute("oncontextmenu","cont2(event,this)");
     div.setAttribute("draggable","true");
     div.setAttribute("ondragstart","dragStartFun(event)");
     div.setAttribute("ondrop","onDropFolder(event)");
@@ -288,11 +292,18 @@ window.cont = (e,elem) => {
     updateDisplayFolder(e,elem)
 }
 
+window.cont2 = (e,elem) => {
+    e.stopPropagation();
+    updateDisplayFile(e,elem)
+}
+
 window.openFolderFromMenu = (e,elem) => {
     e.stopPropagation();
     sessionStorage.setItem('folderPath',(elem.parentElement.parentElement.attributes['name'].value));
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
     dirChange()
 }
 
@@ -311,6 +322,8 @@ window.deleteFolderFromMenu = (e,elem) => {
     e.stopPropagation();
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
     content.innerHTML = "";
     start()
 }
@@ -318,7 +331,7 @@ window.deleteFolderFromMenu = (e,elem) => {
 window.saveRenameItem = (e,elem) => {
     e.stopPropagation();
     let dir = sessionStorage.getItem("currentPath");    
-    if(dir > 3){
+    if(dir.length > 3){
         dir += "/"
     }
 
@@ -327,20 +340,51 @@ window.saveRenameItem = (e,elem) => {
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
 
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
     document.querySelector("#rename").style.display = "";
 }
 window.renameItem = () => {
     let oldName = sessionStorage.getItem("renameName")
     let dir = sessionStorage.getItem("currentPath");   
-    if(dir > 3){
+    if(dir.length > 3){
         dir += "/"
     }
-
     let input = document.querySelector("#rename-input")
     fs.renameSync(oldName,dir+input.value)
     content.innerHTML = "";
     start();
 }
+
+window.openWith = (e,elem) => {
+    e.stopPropagation()
+    let len = config.OpenWith.Paths.length
+    let olList= document.querySelector(".ol-List")
+    for(let i=0;i<len;i++){
+        let name = config.OpenWith.Paths[i].Name
+        let li = doc.createElement("li");
+        li.setAttribute("class","ol-Elem");
+        li.setAttribute("onclick","alert(123)");
+        li.innerHTML = name
+        olList.appendChild(li)
+    }
+    
+    if(olList.style.display == "none"){
+        olList.style.display = ""
+    }else{
+        olList.style.display = "none"
+        olList.innerHTML=""
+    }
+
+
+    
+
+
+    //config.OpenWith.Paths.push({"Name": "Notepad", "path": "notepad"})
+    console.log("Path 1:", config.OpenWith.Paths)
+    let path = sessionStorage.getItem("currentPath")+elem.parentElement.parentElement.attributes["long"].value
+}
+
 
 window.updateDisplayFolder =  (e,elem) => {
     e.stopPropagation();
@@ -348,9 +392,23 @@ window.updateDisplayFolder =  (e,elem) => {
     elem.appendChild(contextMenuFolder)
     document.getElementById('contextMenu').style.display = 'none';
     document.getElementById("contextMenuFolder").style.display = 'none';
+    document.getElementById("contextMenuFile").style.display = 'none';
     contextMenuFolder.style.display = "";
     contextMenuFolder.style.left=elem.offsetLeft+50+"px";
     contextMenuFolder.style.top=elem.offsetTop+50+"px";
+}
+
+
+window.updateDisplayFile =  (e,elem) => {
+    e.stopPropagation();
+    let contextMenuFile = document.getElementById("contextMenuFile")
+    elem.appendChild(contextMenuFile)
+    document.getElementById('contextMenu').style.display = 'none';
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("contextMenuFolder").style.display = 'none';
+    contextMenuFile.style.display = "";
+    contextMenuFile.style.left=elem.offsetLeft+50+"px";
+    contextMenuFile.style.top=elem.offsetTop+50+"px";
 }
 
 
@@ -392,6 +450,8 @@ window.updateTab = () => {
         doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).setAttribute("Path",sessionStorage.getItem("currentPath"))
         document.getElementById("contextMenuFolder").style.display = 'none';
         document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+        document.getElementById("contextMenuFile").style.display = 'none';
+        document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
 
 }
 
@@ -459,6 +519,12 @@ window.removeTab = (TabId) => {
         start()
     }
 
+}
+
+window.settingsTab = () => {
+    content.innerHTML = ""
+    sessionStorage.setItem("currentPath","Settings")
+    updateTab()
 }
 
 window.changeTab = (TabId,Path) => {
@@ -552,12 +618,16 @@ window.updateDisplay =  (event) => {
     document.getElementById("contextMenu").style.top=event.offsetY+"px";
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
 }
 
 window.hide = () => {
     document.getElementById('contextMenu').style.display = 'none';
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
+    document.getElementById("contextMenuFile").style.display = 'none';
+    document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
 }
 
 window.openCmd =  () => {
@@ -821,3 +891,29 @@ var os = require('os');
 var networkInterface = os.networkInterfaces();
 
 console.log(networkInterface);
+
+
+    child.exec('@chcp 65001 >nul & netsh interface ipv4 show addresses',{encoding: "UTF-8"}, (err, stdout) => {
+
+        let std = stdout.split(/\r?\n/);
+        //console.log(std)
+    });
+
+    child.exec('@chcp 65001 >nul & netsh interface ipv4 show config',{encoding: "UTF-8"}, (err, stdout) => {
+
+        let std = stdout.split(/\r?\n/);
+        //console.log(std)
+    });
+
+
+
+config.OpenWith.Paths.push({"Name": "Notepad","path": "notepad"})
+//config.OpenWith.Paths.pop()
+console.log(config.OpenWith)
+fs.writeFile('./Config/config.json', JSON.stringify(config, null, 2), err => {
+  if (err) {
+    console.error(err)
+    return
+  }
+  //file written successfully
+})

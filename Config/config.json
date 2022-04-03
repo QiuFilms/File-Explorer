@@ -1,0 +1,19 @@
+{
+  "OpenWith": {
+    "Paths": [
+      {
+        "Name": "Visual Code Studioasdadsa",
+        "path": "vscode"
+      },
+      {
+        "Name": "SublimeText",
+        "path": "sublime"
+      },
+      {
+        "Name": "Notepad",
+        "path": "notepad"
+      }
+    ]
+  },
+  "Theme": "light"
+}

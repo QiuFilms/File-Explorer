@@ -134,6 +134,10 @@
         <h4 style="margin-left: 10px;">Directory tree</h4>
         <div id="openFolder">
         </div>
+        <div class="settings" onclick="settingsTab()">
+            <img src="./Icons/settings.png" alt="">
+            Settings
+        </div>
     </div>
     <div id="sort">
         <div id="fill">
@@ -168,11 +172,25 @@
             <div id="title" class="contEle">
                 <h4>Folder menu</h4>
             </div>
-            <div id="new" class="contEle" onclick="openFolderFromMenu(event,this)">Open folder/file</div>
-            <div id="new" class="contEle" onclick="deleteFolderFromMenu(event,this)">Delete folder/file</div>
-            <div id="new" class="contEle" onclick="saveRenameItem(event,this)">Rename folder/file</div>
+            <div id="new" class="contEle" onclick="openFolderFromMenu(event,this)">Open folder</div>
+            <div id="new" class="contEle" onclick="deleteFolderFromMenu(event,this)">Delete folder</div>
+            <div id="new" class="contEle" onclick="saveRenameItem(event,this)">Rename folder</div>
             <div id="cmd" class="contEle" onclick="openInNewTab(this)">Open in new tab</div>
-            <div id="refresh" class="contEle" onclick="document.querySelector('#content').innerHTML = '';start();">Refresh</div>
+            <div id="refresh" class="contEle" onclick=""></div>
+        </div>
+
+        <div id="contextMenuFile" style="display: none;">
+            <div id="title" class="contEle">
+                <h4>File menu</h4>
+            </div>
+            <div id="new" class="contEle" onclick="openFolderFromMenu(event,this)">Open file</div>
+            <div id="new" class="contEle" onclick="deleteFolderFromMenu(event,this)">Delete file</div>
+            <div id="new" class="contEle" onclick="saveRenameItem(event,this)">Rename file</div>
+            <div id="cmd" class="contEle downList" onclick="openWith(event,this)" ondblclick="event.stopPropagation()">Open with...
+            <ol class="ol-List" style="display: none;">
+            </ol>
+            </div>
+            <div id="refresh" class="contEle" onclick=""></div>
         </div>
         <div id="create" class="create" style="display: none;">
             <div>
