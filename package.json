@@ -34,6 +34,7 @@
     "jquery": "^3.6.0"
   },
   "dependencies": {
+    "exec-root": "^1.0.9",
     "fs-extra": "^10.0.1"
   }
 }

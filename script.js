@@ -4,6 +4,8 @@ const doc = document;
 var spawn = require("child_process").spawn
 const child = require('child_process');
 const config = require("./Config/config.json")
+const sudo = require('exec-root')
+
 
 //Imports
 import listDrives from "./Functions/listDrives.js"
@@ -12,7 +14,10 @@ import ListStartDrives from "./Functions/listStartDrives.js";
 import CreateTabElement from "./Functions/createTabElement.js";
 
 
-
+const options = {
+    name: 'Electron',
+    icns: '/Applications/Electron.app/Contents/Resources/Electron.icns'
+  };
 
 //ListDrives
 listDrives()
@@ -377,7 +382,7 @@ window.openWith = (e,elem) => {
     }
 
 
-    
+
 
 
     //config.OpenWith.Paths.push({"Name": "Notepad", "path": "notepad"})
@@ -523,8 +528,133 @@ window.removeTab = (TabId) => {
 
 window.settingsTab = () => {
     content.innerHTML = ""
+    let div = document.createElement("div")
+    div.classList = "settings-title"
+    content.appendChild(div)
+    child.exec('@chcp 65001 >nul && netsh interface ipv4 show addresses',{encoding: "UTF-8"}, (err, stdout) => {
+
+        let std = stdout.split(/\r?\n/);
+        console.log(std)
+        for(x in std){
+            if(std[x-1]===""){
+                let arr = std[x].split('"')
+                if(arr[1]!=undefined){
+                    console.log(111)
+                    var innerDiv = document.createElement("div")
+                    innerDiv.id=arr[1] 
+                    innerDiv.setAttribute("onclick","hideInterfaceDetails(this)")
+                    div.appendChild(innerDiv)
+                    innerDiv.classList = "settings-interface-title"
+                    innerDiv.innerHTML += "<h3>Interface "+arr[1]+":</h3>"
+                    div.id = arr[1]
+                }
+
+            }else{
+                if(std[x]!==""){
+                    let elem = document.createElement("div")
+                    let div1 = document.createElement("div")
+                    let input = document.createElement("input")
+                    elem.appendChild(div1)
+                    elem.appendChild(input)
+                    elem.classList = "settings-items"
+                    elem.setAttribute("onclick","stopProp(event)")
+                    elem.style.display = "none"
+                    let newArr = std[x].split(":")
+                    newArr = newArr.filter(n=>n)
+                    div1.innerHTML= newArr[0].trim()
+                    input.value = newArr[1].trim()
+
+                    if(std[x].includes("DHCP")){
+                        input.minLength = 2
+                        input.maxLength = 3
+                        input.value = newArr[1].trim()
+                    }else if(std[x].includes("IP")){
+                        input.minLength = 7 
+                        input.maxLength = 15
+                        input.value = newArr[1].trim()
+                        input.pattern ="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                    }else if(std[x].includes("Subnet")){
+                        newArr = newArr[1].split("(")
+                        input.readOnly = true
+                        input.value = newArr[0].trim()
+                    }
+
+                    innerDiv.appendChild(elem)
+                }
+            }
+        }
+    });
+
+
     sessionStorage.setItem("currentPath","Settings")
     updateTab()
+}
+
+window.hideInterfaceDetails = (elem) => {
+    let child = elem.lastChild
+    let btn = document.createElement("button")
+    btn.classList = "settings-items"
+    btn.innerHTML = "Save"
+    btn.id=elem.id
+    btn.setAttribute("onclick",'saveInterfaceButtonHandler(event,this)')
+    if(child.style.display == "none"){
+        elem.querySelectorAll("."+child.classList).forEach(function(el) {
+            el.style.display = 'flex';
+         });
+
+        if(elem.innerHTML.indexOf("Loopback")==-1 && elem.innerHTML.indexOf("Bluetooth")==-1 && elem.innerHTML.indexOf("Virtual")==-1){
+            elem.appendChild(btn)
+        }
+    }else{
+        elem.querySelectorAll("."+child.classList).forEach(function(el) {
+            el.style.display = 'none';
+         });
+         elem.getElementsByTagName("button")[0].remove()
+    }
+}
+
+window.saveInterfaceButtonHandler = (e,elem) => {
+    let inpTab = []
+    e.stopPropagation()
+    let parent = elem.parentElement
+    parent.querySelectorAll(".settings-items").forEach((el) =>{
+        let inp = el.querySelector("input")
+        if(inp != null){
+            inpTab.push(inp.value)
+        }
+    })
+    console.log(inpTab)
+    changeInterfaceIp(inpTab,elem.id)
+}
+
+function changeInterfaceIp(inpTab,name){
+    let masksArr = ["0.0.0.0","128.0.0.0","192.0.0.0","224.0.0.0",
+    "240.0.0.0","248.0.0.0","252.0.0.0","254.0.0.0","255.0.0.0",
+    "255.128.0.0","255.192.0.0","255.224.0.0","255.240.0.0","255.248.0.0",
+    "255.252.0.0","255.254.0.0","255.255.0.0","255.255.128.0","255.255.192.0",
+    "255.255.224.0","255.255.240.0","255.255.248.0","255.255.252.0","255.255.254.0",
+    "255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.224","255.255.255.240",
+    "255.255.255.248","255.255.255.252","255.255.255.254","255.255.255.255"]
+
+    if(inpTab[0]=="No"){
+        let maskShort = inpTab[2].split("/")
+        let mask = masksArr[maskShort[1]]
+            async function Check(){
+                await sudo.exec(`netsh interface ip set address name="${name}" static ${inpTab[1]} ${mask} ${inpTab[3]}"`,options)
+            }
+            Check()
+        
+    }else{
+            async function Check(){
+                await sudo.exec(`netsh interface ip set address name="${name}" dhcp`,options)
+            }
+            Check()
+}
+}
+
+
+window.stopProp = (e) =>{
+    e.stopPropagation()
 }
 
 window.changeTab = (TabId,Path) => {
@@ -556,10 +686,13 @@ window.changeTab = (TabId,Path) => {
 
         tabList.children[0].classList.add("tab-active")
 
+    }    
+    if(sessionStorage.getItem("currentPath")=="Settings"){
+        settingsTab()
+    }else{
+        start() 
     }
- 
 
-    start()
 }
 
 
@@ -907,13 +1040,12 @@ console.log(networkInterface);
 
 
 
-config.OpenWith.Paths.push({"Name": "Notepad","path": "notepad"})
+//config.OpenWith.Paths.push({"Name": "Notepad","path": "notepad"})
 //config.OpenWith.Paths.pop()
-console.log(config.OpenWith)
-fs.writeFile('./Config/config.json', JSON.stringify(config, null, 2), err => {
-  if (err) {
-    console.error(err)
-    return
-  }
-  //file written successfully
-})
+///console.log(config.OpenWith)
+//fs.writeFile('./Config/config.json', JSON.stringify(config, null, 2), err => {
+  //if (err) {
+    //console.error(err)
+    //return
+  //}
+//})

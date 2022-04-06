@@ -418,6 +418,49 @@ h2{
     cursor: pointer;
 }
 
+
+input:invalid {
+    background-color: rgb(255, 139, 139);
+    border: 1px solid black;
+}
+
+.settings-title{
+    padding-left: 20px;
+}
+
+.settings-interface-title{
+    border: 1px solid black;
+    margin-top: 10px;
+}
+
+.settings-interface-title input{
+    width: 60%;
+}
+
+.settings-interface-title h3{
+    margin: 0;
+    padding: 3px;
+    border: 1px solid black;
+    background-color: #f1f1f1;
+}
+
+.settings-items{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 2px;
+    flex-wrap: wrap;
+}
+
+.break{
+    flex-basis: 100%;
+    width: 100%;
+}
+
+button{
+    margin: 3px 3px 3px auto;
+}
+
 .tabs{
     width: 85%;
     padding-right: 0.5vw;
