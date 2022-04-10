@@ -8,17 +8,20 @@ const sudo = require('exec-root')
 
 
 //Imports
-import listDrives from "./Functions/listDrives.js"
+import listDrives from "./Functions/DrivesHandler/listDrives.js"
 import createDiskElement from "./Functions/createDiskElement.js"
-import ListStartDrives from "./Functions/listStartDrives.js";
-import CreateTabElement from "./Functions/createTabElement.js";
-import {firstTab, updateTab, addTab} from "./Functions/manageTabs.js";
+import ListStartDrives from "./Functions/DrivesHandler/listStartDrives.js";
+import CreateTabElement from "./Functions/TabsHandler/createTabElement.js";
+import {firstTab, updateTab, addTab} from "./Functions/TabsHandler/manageTabs.js";
+import NetworkHandler from "./Functions/NetworkInterfacesHandler/networkHandler.js";
+import {hideInterfaceDetailsHandler, saveInterfaceButtonHandler} from "./Functions/NetworkInterfacesHandler/networkInterfaceHandler.js";
+import Folder from "./Functions/FolderAndFilesHandler/FolderAndFilesHandler.js"
+import {minimize, maximize, closeWindow} from "./Functions/WindowHandler/windowHandler.js"
 
+window.minimize = minimize
+window.maximize = maximize
+window.closeWindow = closeWindow
 
-const options = {
-    name: 'Electron',
-    icns: '/Applications/Electron.app/Contents/Resources/Electron.icns'
-  };
 
 //ListDrives
 listDrives()
@@ -89,60 +92,23 @@ window.start = function(isFocused) {
         dir += "/" 
     }
 
-const pattern = new RegExp(/\.[0-9a-z]+$/i)
-for(x in files1){
-    //var test = pattern.test(files1[x]);
-    let isDirExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isDirectory();
-    if(isDirExists){
-        Folder()
+
+    for(x in files1){
+        let isDirExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isDirectory();
+        if(isDirExists){
+            Folder(files1,x)
+        }   
     }
-    //if(fs.lstatSync(files1[x]).isDirectory()){
-        //Folder()
-    
-}
-for(x in files1){
 
-    //var test = pattern.test(files1[x]);
-    
-    let isFileExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isFile();
-    if(isFileExists){
-        File()
+    for(x in files1){
+        let isFileExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isFile();
+        if(isFileExists){
+            File()
+        }
     }
-    //if(fs.lstatSync(files1[x]).isFile()){
-    //    File()
-
-}
 
 
-function Folder() {
-    let div = doc.createElement("div");
-    div.setAttribute("id","folder_div");
-    div.setAttribute("class","folder_div");
-    div.setAttribute("oncontextmenu","cont(event,this)");
-    div.setAttribute("draggable","true");
-    div.setAttribute("ondragstart","dragStartFun(event)");
-    div.setAttribute("ondrop","onDropFolder(event,this)");
-    let content = doc.getElementById("content");
-    content.appendChild(div);
-    let folder = doc.createElement("img");
-    folder.setAttribute("src","Icons/logo.png");
-    div.appendChild(folder);
-    let namef = doc.createElement("p");
-    div.setAttribute("long",files1[x]);
-    if (files1[x].length >10){
-        
-        namef.innerHTML=files1[x].slice(0, 15)+"...";
-        div.setAttribute("short",files1[x].slice(0, 15)+'...');
-    }else{
-        div.setAttribute("short",files1[x]);
-        namef.innerHTML=files1[x];
-    }
-    namef.setAttribute("id","folder-name");
-    div.appendChild(namef);
-    let fdir = `/${files1[x]}`
-    div.setAttribute("name",fdir)
-    div.setAttribute("ondblclick","sessionStorage.setItem('folderPath',(this.attributes['name'].value));dirChange()")
-}
+
 
 window.dragStartFun = (ev) => {
     if(ev.target.getAttribute("long")==null){
@@ -440,7 +406,7 @@ window.updateTab = () => {
 }
 
 window.addTab = (pathStart = "Start") => {
-    addTab()
+    addTab(pathStart)
     start()
 }
 
@@ -551,67 +517,13 @@ window.settingsTab = () => {
 }
 
 window.hideInterfaceDetails = (elem) => {
-    let child = elem.lastChild
-    let btn = document.createElement("button")
-    btn.classList = "settings-items"
-    btn.innerHTML = "Save"
-    btn.id=elem.id
-    btn.setAttribute("onclick",'saveInterfaceButtonHandler(event,this)')
-    if(child.style.display == "none"){
-        elem.querySelectorAll("."+child.classList).forEach(function(el) {
-            el.style.display = 'flex';
-         });
-
-        if(elem.innerHTML.indexOf("Loopback")==-1 && elem.innerHTML.indexOf("Bluetooth")==-1 && elem.innerHTML.indexOf("Virtual")==-1){
-            elem.appendChild(btn)
-        }
-    }else{
-        elem.querySelectorAll("."+child.classList).forEach(function(el) {
-            el.style.display = 'none';
-         });
-         elem.getElementsByTagName("button")[0].remove()
-    }
+    hideInterfaceDetailsHandler(elem)
 }
 
 window.saveInterfaceButtonHandler = (e,elem) => {
-    let inpTab = []
     e.stopPropagation()
-    let parent = elem.parentElement
-    parent.querySelectorAll(".settings-items").forEach((el) =>{
-        let inp = el.querySelector("input")
-        if(inp != null){
-            inpTab.push(inp.value)
-        }
-    })
-    console.log(inpTab)
-    changeInterfaceIp(inpTab,elem.id)
+    saveInterfaceButtonHandler(elem)
 }
-
-function changeInterfaceIp(inpTab,name){
-    let masksArr = ["0.0.0.0","128.0.0.0","192.0.0.0","224.0.0.0",
-    "240.0.0.0","248.0.0.0","252.0.0.0","254.0.0.0","255.0.0.0",
-    "255.128.0.0","255.192.0.0","255.224.0.0","255.240.0.0","255.248.0.0",
-    "255.252.0.0","255.254.0.0","255.255.0.0","255.255.128.0","255.255.192.0",
-    "255.255.224.0","255.255.240.0","255.255.248.0","255.255.252.0","255.255.254.0",
-    "255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.224","255.255.255.240",
-    "255.255.255.248","255.255.255.252","255.255.255.254","255.255.255.255"]
-
-    if(inpTab[0]=="No"){
-        let maskShort = inpTab[2].split("/")
-        let mask = masksArr[maskShort[1]]
-            async function Check(){
-                await sudo.exec(`netsh interface ip set address name="${name}" static ${inpTab[1]} ${mask} ${inpTab[3]}"`,options)
-            }
-            Check()
-        
-    }else{
-            async function Check(){
-                await sudo.exec(`netsh interface ip set address name="${name}" dhcp`,options)
-            }
-            Check()
-}
-}
-
 
 window.stopProp = (e) =>{
     e.stopPropagation()
@@ -708,9 +620,10 @@ document.addEventListener('mousedown', logButtons);
 
 
 window.updateDisplay =  (event) => {
-    document.getElementById("contextMenu").style.display = "";
-    document.getElementById("contextMenu").style.left=event.offsetX+"px";
-    document.getElementById("contextMenu").style.top=event.offsetY+"px";
+    let contextMenu =  document.querySelector("#contextMenu")
+    contextMenu.style.display = "";
+    contextMenu.style.left=event.offsetX+"px";
+    contextMenu.style.top=event.offsetY+"px";
     document.getElementById("contextMenuFolder").style.display = 'none';
     document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
     document.getElementById("contextMenuFile").style.display = 'none';

@@ -69,35 +69,14 @@
         <div id="icon2">
             <p>This PC</p>
         </div>
-        <div id="image" onclick="window.close();">
+        <div id="image" onclick="closeWindow();">
             <img src="close.png">
         </div>
-        <div id="image2" onclick="resize2();">
+        <div id="image2" onclick="maximize();">
             <img src="rectangle.png">
-            <script>
-                function resize2(){
-                console.log(screen.availWidth);
-                console.log(window.innerWidth);
-
-                if(screen.availWidth != window.innerWidth){
-                    window.resizeTo(screen.availWidth, screen.availHeight);
-                }else {
-                    window.resizeTo(1400,800);
-                    window.moveTo(250, 120);
-                };
-                return;
-            }
-            </script>
         </div>
         <div id="image3" onclick="minimize();">
             <img src="substract.png">
-            <script>
-                function minimize(){
-                    const $ = require('jquery');
-                    const { remote } = require('electron');
-                    remote.BrowserWindow.getFocusedWindow().minimize();
-                }
-            </script>
         </div>
     </div>
     <div id="top-bar" onclick="hide()">

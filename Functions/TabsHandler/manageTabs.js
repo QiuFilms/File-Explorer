@@ -1,5 +1,5 @@
 import CreateTabElement from "./createTabElement.js";
-import HideContextMenus from "./MiscFuntions/contextMenus.js";
+import HideContextMenus from "../MiscFuntions/contextMenus.js";
 
 class TabElement{
     constructor({path,tabId}){
@@ -66,7 +66,7 @@ const addTab = (pathStart) => {
     sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))+1);
 
     if(sessionStorage.getItem("Number")>=10){
-        doc.querySelector("#addTab").style.display = "none"
+        document.querySelector("#addTab").style.display = "none"
     }
 
     let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)

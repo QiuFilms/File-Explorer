@@ -1,9 +1,8 @@
 const electron = require('electron')
-const {app, BrowserWindow} = require('electron');
+const { app, BrowserWindow, Notification } = require('electron')
 const url = require('url')
 const path = require('path')
 const { NONAME } = require('dns')
-
 
 
 let mainWindow;
@@ -27,7 +26,6 @@ app.on('ready', function(){
             
     });
 
-    
     app.on('window-all-closed', () =>{
         if(process.platform !== 'darwin'){
           app.quit();
