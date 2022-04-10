@@ -12,6 +12,7 @@ import listDrives from "./Functions/listDrives.js"
 import createDiskElement from "./Functions/createDiskElement.js"
 import ListStartDrives from "./Functions/listStartDrives.js";
 import CreateTabElement from "./Functions/createTabElement.js";
+import {firstTab, updateTab, addTab} from "./Functions/manageTabs.js";
 
 
 const options = {
@@ -432,58 +433,14 @@ function defineExtension(){
 
 }
 
-window.tabElements = () => {
-    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
-    let TabId = sessionStorage.getItem('CurrentTab')
-    console.log(sessionStorage.getItem("currentPath"))
-    if(path.length == 1){
-        CreateTabElement(path[0],TabId)
-    }else{
-        CreateTabElement(path[path.length-1],TabId)
-    }
-    doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.display = "none"
-    doc.querySelector('#tabs').querySelector(".tab").querySelector(".tab_close").style.cursor = "auto"
-    doc.querySelector('#tabs').querySelector(".tab").classList.add("tab-active")
-    doc.querySelector('#tabs').querySelector(".tab").classList.add("main")
-}
-tabElements()
+firstTab()
 
 window.updateTab = () => {
-    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
-
-        doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).querySelector('.tab_name').innerHTML = path[path.length-1] 
-        doc.querySelector(`#${sessionStorage.getItem("CurrentTab")}`).setAttribute("Path",sessionStorage.getItem("currentPath"))
-        document.getElementById("contextMenuFolder").style.display = 'none';
-        document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFolder"))
-        document.getElementById("contextMenuFile").style.display = 'none';
-        document.getElementById("content-outer").appendChild(document.getElementById("contextMenuFile"))
-
+    updateTab()
 }
 
 window.addTab = (pathStart = "Start") => {
-
-    sessionStorage.setItem("currentPath",pathStart);
-    sessionStorage.setItem("previousPath","Start");
-    sessionStorage.setItem("NumberOfTabs", sessionStorage.getItem("NumberOfTabs")+1);
-    sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))+1);
-
-    if(sessionStorage.getItem("Number")>=10){
-        doc.querySelector("#addTab").style.display = "none"
-    }
-
-    let path = sessionStorage.getItem('currentPath').split("/").filter(n => n)
-
-    if(path.length == 1){
-        sessionStorage.setItem("CurrentTab",`Tab${sessionStorage.getItem("Number")}`);
-        sessionStorage.setItem("BiggesyTabId",`Tab${sessionStorage.getItem("Number")}`);
-        CreateTabElement(path[0],`Tab${sessionStorage.getItem("Number")}`)
-    }else{
-        sessionStorage.setItem("CurrentTab",`Tab${sessionStorage.getItem("Number")}`);
-        sessionStorage.setItem("BiggesyTabId",`Tab${sessionStorage.getItem("Number")}`);
-        CreateTabElement(path[path.length-1],`Tab${sessionStorage.getItem("Number")}`)
-    
-    }
-
+    addTab()
     start()
 }
 
@@ -506,6 +463,7 @@ window.removeTab = (TabId) => {
     sessionStorage.setItem("Number", parseInt(sessionStorage.getItem("Number"))-1);
     let tabList = doc.querySelector("#tabs")
     let removedItem = doc.getElementById(TabId.parentNode.id)
+    console.log(removedItem)
 
     if(sessionStorage.getItem("Number")<10){
         doc.querySelector("#addTab").style.display = "block"
@@ -513,8 +471,10 @@ window.removeTab = (TabId) => {
 
     if(tabList.length < 2){
     }else{
+        console.log(tabList)
         let newTabPath = tabList.children[0].attributes['path'].value
         let newTabId = tabList.children[0].id
+        console.log(tabList.children[0])
         tabList.children[0].classList.add("tab-active")
         sessionStorage.setItem("currentPath",newTabPath);
         sessionStorage.setItem("CurrentTab",newTabId);
@@ -658,6 +618,8 @@ window.stopProp = (e) =>{
 }
 
 window.changeTab = (TabId,Path) => {
+    hide()
+    console.log(sessionStorage.getItem('currentPath'))
     if(doc.querySelector(`#${TabId}`)){
         sessionStorage.setItem("currentPath",Path);
         sessionStorage.setItem("CurrentTab",TabId);

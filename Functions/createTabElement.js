@@ -23,6 +23,7 @@ class TabElement {
     AppendAll(){
         this.MainElem.insertBefore(this.ElemTab,doc.querySelector("#addTab"))
 
+        console.log(this.Path)
         this.ElemTab.appendChild(this.ElemTabName)
         this.ElemTab.setAttribute("path",this.Path)
         this.ElemTab.setAttribute("onclick","changeTab(this.id,this.attributes['path'].value)")
@@ -69,8 +70,8 @@ const CreateTabElement = (TabName, TabId) => {
         Path: sessionStorage.getItem('currentPath'),
         CurrentTab: sessionStorage.getItem("CurrentTab")
     } 
-
-    var TabElem = new TabElement(AllElems);
+    console.log(1)
+    let TabElem = new TabElement(AllElems);
 
     TabElem.setImg()
     TabElem.AppendAll()
