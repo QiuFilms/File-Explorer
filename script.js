@@ -24,17 +24,20 @@ window.closeWindow = closeWindow
 
 
 //ListDrives
-listDrives()
+let x;
+function drives(){
+    listDrives()
 
-listDrives().then((data) => getDrives(data))
+    listDrives().then((data) => getDrives(data))
 
-var x;
-function getDrives(data) {
-    for( x in data){
-        createDiskElement(data,x)
+    function getDrives(data) {
+        for( x in data){
+            createDiskElement(data,x)
+        }
     }
 }
 
+drives()
 
 //CurrentPath
 sessionStorage.setItem("currentPath","Start");
@@ -875,6 +878,18 @@ window.listActions = function (elClass){
     }
 
 }
+
+
+let elem = document.querySelector("#disks")
+setInterval(function () {
+    if(elem.innerHTML == ""){
+         drives()
+    }
+}, 3000);
+
+
+
+
 
 const { networkInterfaces } = require('os');
 
