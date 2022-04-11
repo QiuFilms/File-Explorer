@@ -37,8 +37,6 @@ function drives(){
     }
 }
 
-drives()
-
 //CurrentPath
 sessionStorage.setItem("currentPath","Start");
 sessionStorage.setItem("previousPath","Start");
@@ -68,7 +66,8 @@ window.start = function(isFocused) {
                 ListStartDrives(data,x)
             }
         } 
-        listDrives().then((data) => startDrives(data))
+
+        listDrives().then((data) => setTimeout(startDrives, 1000, data))
 
     }else{
 
