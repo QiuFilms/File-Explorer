@@ -748,9 +748,9 @@ window.checkView = () => {
 
 function checkTimeOut() {
     setInterval(function(){ checkView() }, 100);
-  }
+}
 
-  checkTimeOut()
+checkTimeOut()
 
 
 var input = document.getElementById("path-text");
