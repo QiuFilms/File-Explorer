@@ -9,49 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
 
   <style>
-      #content{
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
-      }
-      .folder_div{
-        flex: 1 0 21%;
-        max-width: 80px;
-        margin: 5px;
-        margin-top: 0px;
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: center;
-        word-break: break-all;
-        text-overflow:ellipsis; 
-        transition: 0.5s;
-      }
-      #folder_div:hover{
-          cursor: pointer;
-          background-color: rgb(233, 233, 233);
-      }
-
-      #disk_div{
-        margin-top: 0px;
-        width: 100%;
-        display: flex;
-        padding: 8px;
-        padding-left: 15px;
-        align-items: center;
-        transition: 0.5s;
-      }
-      #disk_div:hover{
-          cursor: pointer;
-          background-color: rgb(233, 233, 233);
-      }
-
-      #disk_div p {
-          padding-left:5px
-      }
-      #disk_div img{
-        max-width: 24px;
-      }
+      
 
 
 
@@ -110,7 +68,7 @@
         <br>
             <h4 id="start" onclick="sessionStorage.setItem('currentPath',(this.id));content.innerHTML = '';document.querySelector('#openFolder').innerHTML = '';start()"><img src="Icons/computer.png"> This PC</h4>
         <br>
-        <h4 style="margin-left: 10px;">Directory tree</h4>
+        <h4 style="margin-left: 10px;" onclick="themeCheck()">Directory tree</h4>
         <div id="openFolder">
         </div>
         <div class="settings" onclick="settingsTab()">

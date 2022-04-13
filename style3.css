@@ -4,6 +4,16 @@
     font-family: 'Open Sans', sans-serif;
 }
 
+:root{
+    --main:white;
+    --second: #f1f1f1;
+    --font:black;
+    --font-color: #3a3f44;
+    --hover-buttons: #d8d8d8;
+    --tab:#e0efff;
+    --invert-elem:0;
+}
+
 @font-face {
     font-family: 'nms_geosansregular';
     src: url('NMSFuturaProBook_Kerned.woff') format('woff2');       
@@ -15,6 +25,8 @@ html, body{
     height: 100%; 
     position: relative;
     overflow: hidden;
+    color: var(--font);
+
 }
 body{
     user-select: none;
@@ -53,7 +65,7 @@ img p{
     align-items: center;
     justify-content: left; 
     color: rgb(223, 223, 223);
-    color: #3a3f44;
+    color: var(--font-color);
     margin-left: -10px;
 }
 
@@ -66,8 +78,8 @@ img p{
 #top{
     height: 28px;
     width: 100%;
-    background-color: #3a3f44;
-    background-color: #f1f1f1; 
+    background-color: var(--font-color);
+    background-color: var(--second); 
     z-index: 7;
     position: relative;
     -webkit-app-region: drag;
@@ -103,7 +115,7 @@ img p{
 #image > img{
     height: 10px;
     width: 10px;
-    filter: invert(0);
+    filter: invert(var(--invert-elem));
     -webkit-app-region: no-drag;
     
 }
@@ -114,27 +126,27 @@ img p{
 }
 #image2:hover{
     background-color: #4a5057;
-    background-color: #d8d8d8;
+    background-color: var(--hover-buttons);
 
 }
 
 #image3:hover{
     background-color: #4a5057;
-    background-color: #d8d8d8;
+    background-color: var(--hover-buttons);
 
 }
 
 #image2 > img{
     height: 16px;
     width: 12px;
-    filter: invert(0);
+    filter: invert(var(--invert-elem));
     -webkit-app-region: no-drag;
 }
 
 #image3 > img{
     height: 16px;
     width: 12px;
-    filter: invert(0);
+    filter: invert(var(--invert-elem));
     -webkit-app-region: no-drag;
 }
 input{
@@ -257,7 +269,7 @@ label{
     width: 20%;
     font-size: 15px;
     border-radius: 10px;
-    color: white;
+    color: var(--main);
     background-image: linear-gradient(to right top, #52BBB7,rgb(43, 175, 207));
     transition: width 0.5s, border 1s;
     animation: fadein 2s;
@@ -275,7 +287,7 @@ label{
 }
 
 h2{
-    font-size: 1.7vw;
+    font-size: 25px;
     padding-bottom: 0.7vw;
 }
 
@@ -326,7 +338,7 @@ h2{
 
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: var(--second); 
 }
  
 
@@ -341,6 +353,7 @@ h2{
 
 
 #left-bar{
+    background-color: var(--main);
     float: left;
     width: 15%;
     height: 87%;
@@ -366,7 +379,7 @@ h2{
 #top-bar{
     width: 100%;
     height: 7%;
-    background: #f1f1f1; 
+    background: var(--second); 
     clear: both;
     overflow: hidden;
 }
@@ -374,7 +387,7 @@ h2{
 #sort{
     width: 85%;
     height: 3%;
-    background-color: #f1f1f1;
+    background-color: var(--second);
     float:left;
     display:flex;
     flex-direction: row;
@@ -384,13 +397,17 @@ h2{
 #fill{
     height: 100%;
     width: 10%;
-    background-color: white;
+    background-color: var(--main);
     border-top-right-radius: 10px;
     display: flex;
     justify-content: space-betwen;
     align-items: center;
     overflow:hidden;
     display: flex;
+}
+
+#fill img{
+    filter: invert(var(--invert-elem));
 }
 
 .settings{
@@ -407,6 +424,7 @@ h2{
     max-height: 25px;
     padding: 0 3px 0 3px;
     transition: 0.5s;
+    filter: invert(var(--invert-elem));
 }
 
 .settings:hover img{
@@ -414,7 +432,7 @@ h2{
 }
 
 .settings:hover{
-    background-color: rgb(231, 231, 231);
+    background-color: var(--hover-buttons);
     cursor: pointer;
 }
 
@@ -441,7 +459,7 @@ input:invalid {
     margin: 0;
     padding: 3px;
     border: 1px solid black;
-    background-color: #f1f1f1;
+    background-color: var(--second);
 }
 
 .settings-items{
@@ -463,9 +481,9 @@ button{
 
 .tabs{
     width: 85%;
-    padding-right: 0.5vw;
+    padding-right: 5px;
     height: 100%;
-    background-color: #f1f1f1;
+    background-color: var(--second);
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-start;
@@ -476,7 +494,7 @@ button{
 .tab{
     width: 10%;
     height: 100%;
-    background-color: #e0efff;
+    background-color: var(--tab);
     float: right;
     border-radius: 10px 10px 0 0;
     display: flex;
@@ -487,7 +505,7 @@ button{
 }
 
 .tab-active{
-    background-color: white;
+    background-color: var(--main);
 }
 
 .tab_name{
@@ -549,7 +567,7 @@ button{
     height: 84%;
     position: relative;
     z-index: 0;
-    background-color: white;
+    background-color: var(--main);
     overflow-y: scroll;
 }
 
@@ -645,15 +663,61 @@ button{
     margin-top: 15px;
 }
 
+#content{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.folder_div{
+  flex: 1 0 21%;
+  max-width: 80px;
+  margin: 5px;
+  margin-top: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  word-break: break-all;
+  text-overflow:ellipsis; 
+  transition: 0.5s;
+}
+#folder_div:hover{
+    cursor: pointer;
+    background-color: var(--hover-buttons);
+}
+
+#disk_div{
+  margin-top: 0px;
+  width: 100%;
+  display: flex;
+  padding: 8px;
+  padding-left: 15px;
+  align-items: center;
+  transition: 0.5s;
+}
+#disk_div:hover{
+    cursor: pointer;
+    background-color: var(--hover-buttons);
+}
+
+#disk_div p {
+    padding-left:5px
+}
+#disk_div img{
+  max-width: 24px;
+}
+
 #folder_div img{
     max-width: 50px;
 }
+
+
 
 #openList{
     float: left;
     width: 35px;
     height: 35px;
-    background-color: white;
+    background-color: var(--main);
     border-radius: 50px;
     display: flex;
     align-items: center;
@@ -663,16 +727,17 @@ button{
 }
 #openList img{
     max-height: 30px;
+    filter: invert(var(--invert-elem));
 }
 
 #openList{
     cursor: pointer;
-    background-color: white;
+    background-color: var(--main);
     z-index: 100;
 }
 
 #openList:hover{
-    background-color: #d8d8d8;
+    background-color: var(--hover-buttons);
 }
 
 #actions{
@@ -683,7 +748,7 @@ button{
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: white;
+    background-color: var(--main);
     border-bottom-right-radius: 10px;
     z-index: 1;
 }
@@ -717,7 +782,7 @@ button{
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    background-color: white;
+    background-color: var(--main);
     float: right;
     
 }
@@ -734,6 +799,7 @@ button{
     margin-right: 4vw;
     max-height: 25px;
     max-width: 25px;
+    filter: invert(var(--invert-elem));
 }
 
 #path-text{
@@ -741,11 +807,11 @@ button{
     flex-direction: row;
     align-items: center;
     margin-left: 5px;
-    background-color: white;
+    background-color: var(--main);
     width: 60vw;
     height: 20px;
     outline: none;
-    border: 1px solid #3a3f44;
+    border: 1px solid var(--font-color);
     border-radius: 5px;
     padding: 5px;
     transition: 0.1s;
@@ -772,7 +838,7 @@ button{
     height: 3.5%;
     clear: both;
     width: 100%;
-    background-color: #f1f1f1;
+    background-color: var(--second);
     z-index: 100;
 }
 
@@ -834,12 +900,16 @@ h4 img{
 
 .startDisk:hover{
     cursor: pointer;
-    background-color: #d8d8d8;
+    background-color: var(--hover-buttons);
 }
 
 #disks{
-    border-bottom: 5px solid #f1f1f1;
+    border-bottom: 5px solid var(--second);
     width: 100%;
+}
+
+#disks img{
+    filter: invert(var(--invert-elem));
 }
 
 .leftEl:hover{

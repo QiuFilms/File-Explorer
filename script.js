@@ -927,7 +927,44 @@ console.log(networkInterface);
         //console.log(std)
     });
 
+window.themeCheck = () =>{
+    let root = document.querySelector(':root');
+    let rs = getComputedStyle(root)
+    if(rs.getPropertyValue('--main')=="white"){
+        darkTheme()
+    }else{
+        lightTheme()
+    }
+}
 
+function darkTheme(){
+    let root = document.querySelector(':root');
+    root.style.setProperty('--main', '#171717');
+    root.style.setProperty('--second', '#444444');
+    root.style.setProperty('--font-color', '#f1f1f1');
+    root.style.setProperty('--font', 'white');
+    root.style.setProperty('--hover-buttons', '#3a3f44');
+    root.style.setProperty('--tab', "#5d5d5d");
+    root.style.setProperty('--invert-elem', 1);
+}
+
+
+function lightTheme(){
+    let root = document.querySelector(':root');
+    root.style.setProperty('--main', 'white');
+    root.style.setProperty('--second', '#f1f1f1');
+    root.style.setProperty('--font-color', '#3a3f44');
+    root.style.setProperty('--font', 'black');
+    root.style.setProperty('--hover-buttons', '#d8d8d8');
+    root.style.setProperty('--tab', "#e0efff");
+    root.style.setProperty('--invert-elem', 0);
+}
+
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    darkTheme()
+}else{
+    lightTheme()
+}
 
 //config.OpenWith.Paths.push({"Name": "Notepad","path": "notepad"})
 //config.OpenWith.Paths.pop()

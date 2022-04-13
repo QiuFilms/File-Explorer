@@ -11,6 +11,7 @@ app.on('ready', function(){
     mainWindow = new BrowserWindow({
         width: 1400, 
         height: 800,
+        backgroundColor:"#3a3f44;",
         frame:false,
         //opacity:0.2,
         transparent: false,
