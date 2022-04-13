@@ -711,14 +711,17 @@ window.deleteFile = () => {
 
 
 window.sortDown = () => {
-    document.getElementById("content").style.flexDirection = "column";
-    sessionStorage.setItem("view","down")
-    let fold = document.getElementsByClassName("folder_div")
-    let num = fold.length;
-    for(let x = 0;x<num;x++){
-        fold[x].style.flexDirection = "row";
-        fold[x].style.maxWidth = "100%";
-        fold[x].children[1].innerHTML = `${fold[x].getAttribute('long')}`
+    let currentPath = sessionStorage.getItem("currentPath")
+    if(currentPath!="Start" && currentPath !="Settings"){
+        document.getElementById("content").style.flexDirection = "column";
+        sessionStorage.setItem("view","down")
+        let fold = document.getElementsByClassName("folder_div")
+        let num = fold.length;
+        for(let x = 0;x<num;x++){
+            fold[x].style.flexDirection = "row";
+            fold[x].style.maxWidth = "100%";
+            fold[x].children[1].innerHTML = `${fold[x].getAttribute('long')}`
+        }
     }
 }
 
