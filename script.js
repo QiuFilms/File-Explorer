@@ -48,6 +48,8 @@ sessionStorage.setItem("BiggestTabId","Tab");
 
 window.start = function(isFocused) {
     if(sessionStorage.getItem("currentPath")=="Start" || sessionStorage.getItem("currentPath")=="start"){
+        let content = doc.querySelector("#content")
+        content.style.flexDirection = "row";
         function startDrives(data){
             child.exec('fsutil volume diskfree c:/',{encoding: "UTF-8"}, (err, stdout, stderr) => {
                 if (err) {
@@ -58,8 +60,6 @@ window.start = function(isFocused) {
                 var total = std[29].split("(")[1];
             });
             doc.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> Start`;
-            let content = doc.querySelector("#content")
-
             let iter = data.length - 1;
             content.innerHTML = "<h2>Devices and drives<div></div></h2>"
             for(let x=0;x<=iter;x++){
@@ -67,7 +67,7 @@ window.start = function(isFocused) {
             }
         } 
 
-        listDrives().then((data) => setTimeout(startDrives, 1000, data))
+        listDrives().then((data) => startDrives(data))
 
     }else{
 
