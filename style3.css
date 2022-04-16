@@ -26,6 +26,7 @@ html, body{
     position: relative;
     overflow: hidden;
     color: var(--font);
+    transition: 0.2s;
 
 }
 body{
@@ -410,15 +411,44 @@ h2{
     filter: invert(var(--invert-elem));
 }
 
-.settings{
-    padding: 5px;
+.top-down{
     width: 100%;
     margin-top: auto;
+}
+
+
+.cloud{
     display: flex;
     align-items: center;
     transition: 0.5s;
     overflow: hidden;
+    padding: 5px;
 }
+
+.cloud:hover{
+    background-color: var(--hover-buttons);
+    cursor: pointer;
+}
+
+.cloud img{
+    max-height: 25px;
+    padding: 0 3px 0 3px;
+    transition: 0.5s;
+    filter: invert(var(--invert-elem));
+}
+
+.cloud:hover img{
+    filter: invert(0.5);
+}
+
+.settings{
+    display: flex;
+    align-items: center;
+    transition: 0.5s;
+    overflow: hidden;
+    padding: 5px;
+}
+
 
 .settings img{
     max-height: 25px;
@@ -442,13 +472,50 @@ input:invalid {
     border: 1px solid black;
 }
 
+.settingsThemeTab{
+    margin-left: 20px;
+    width: 50%;
+    border: 2px solid black;
+    background-color: var(--second);
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.settingsThemeTab h3{
+    width: 100%;
+    display: inline;
+    font-size: 16px;
+    padding: 3px;
+}
+
+select{
+    display: inline-block;
+    background-color: #3f8fdf;
+    color: var(--font-color);
+    width: 60px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+select:focus{
+    outline: none;
+}
+
+select:active{
+    outline: none;
+}
+
 .settings-title{
     padding-left: 20px;
+    width: 50%;
 }
 
 .settings-interface-title{
-    border: 1px solid black;
     margin-top: 10px;
+    width: 100%;
 }
 
 .settings-interface-title input{
@@ -458,8 +525,9 @@ input:invalid {
 .settings-interface-title h3{
     margin: 0;
     padding: 3px;
-    border: 1px solid black;
+    border: 2px solid black;
     background-color: var(--second);
+    width: 100%;
 }
 
 .settings-items{
@@ -684,6 +752,22 @@ button{
 #folder_div:hover{
     cursor: pointer;
     background-color: var(--hover-buttons);
+}
+
+.info{
+    margin-left: auto;
+    margin-right: 5px;
+    display: none;
+    min-width: 150px;
+    text-align: right;
+}
+
+.infoRest{
+    margin-right: 5px;
+    margin-left: 15px;
+    display: none;
+    min-width: 150px;
+    text-align: right;
 }
 
 #disk_div{

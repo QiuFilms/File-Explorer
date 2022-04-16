@@ -5,6 +5,7 @@ var spawn = require("child_process").spawn
 const child = require('child_process');
 const config = require("./Config/config.json")
 const sudo = require('exec-root')
+const fastFolderSize = require('fast-folder-size')
 
 
 //Imports
@@ -15,8 +16,9 @@ import CreateTabElement from "./Functions/TabsHandler/createTabElement.js";
 import {firstTab, updateTab, addTab} from "./Functions/TabsHandler/manageTabs.js";
 import NetworkHandler from "./Functions/NetworkInterfacesHandler/networkHandler.js";
 import {hideInterfaceDetailsHandler, saveInterfaceButtonHandler} from "./Functions/NetworkInterfacesHandler/networkInterfaceHandler.js";
-import Folder from "./Functions/FolderAndFilesHandler/FolderAndFilesHandler.js"
+import {Folder, FileCreate} from "./Functions/FolderAndFilesHandler/FolderAndFilesHandler.js"
 import {minimize, maximize, closeWindow} from "./Functions/WindowHandler/windowHandler.js"
+import settingsNetworkInterfaces from "./Functions/SettingsTabHandler/settingsNetworkInterfaces.js";
 
 window.minimize = minimize
 window.maximize = maximize
@@ -62,6 +64,7 @@ window.start = function(isFocused) {
             doc.querySelector("#path-text").innerHTML = `<img src='Icons/logo.png' alt=''> <img src='Arrows/ArrowF.png' alt='' id='pointer'> Start`;
             let iter = data.length - 1;
             content.innerHTML = "<h2>Devices and drives<div></div></h2>"
+            content.setAttribute("ondrop","drop()")
             for(let x=0;x<=iter;x++){
                 ListStartDrives(data,x)
             }
@@ -98,14 +101,18 @@ window.start = function(isFocused) {
     for(x in files1){
         let isDirExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isDirectory();
         if(isDirExists){
-            Folder(files1,x)
+            let info = fs.lstatSync(dir+files1[x])
+            Folder(files1[x],"normal",info, undefined)
         }   
     }
 
     for(x in files1){
         let isFileExists = fs.existsSync(dir+files1[x]) && fs.lstatSync(dir+files1[x]).isFile();
         if(isFileExists){
-            File()
+            let info = fs.lstatSync(dir+files1[x])
+            let ext = path.extname(files1[x])
+
+            FileCreate(files1[x],info,ext)
         }
     }
 
@@ -158,6 +165,7 @@ window.onDropFolder = (e,elem) =>{
 
 window.allowDrop = (ev) => {
     ev.preventDefault();
+
 }
 
 function destructPath(){
@@ -203,58 +211,6 @@ function destructPath(){
     return [pathG,pathG2]
 }
 
-function File() {
-    let div = doc.createElement("div");
-    div.setAttribute("id","folder_div");
-    div.setAttribute("class","folder_div");
-    div.setAttribute("oncontextmenu","cont2(event,this)");
-    div.setAttribute("draggable","true");
-    div.setAttribute("ondragstart","dragStartFun(event)");
-    div.setAttribute("ondrop","onDropFolder(event)");
-    let content = doc.getElementById("content");
-    content.appendChild(div);
-    let file = doc.createElement("img");
-    div.appendChild(file);
-    let namef = doc.createElement("p");
-    namef.setAttribute("id","folder-name");
-    div.setAttribute("long",files1[x]);
-    if (files1[x].length >10){
-        
-        namef.innerHTML=files1[x].slice(0, 15)+"...";
-        div.setAttribute("short",files1[x].slice(0, 15)+'...');
-    }else{
-        div.setAttribute("short",files1[x]);
-        namef.innerHTML=files1[x];
-    }
-    var fileExt = files1[x].split('.').pop().toLowerCase();
-    if(fileExt == "txt"){
-        file.setAttribute("src","Icons/file3.png")
-    }else if(fileExt == "js"){
-        file.setAttribute("src","Icons/js.png")
-    }else if(fileExt == "json"){
-            file.setAttribute("src","Icons/json.png")
-    }else if(fileExt == "png"){
-        file.setAttribute("src","Icons/png.png")
-    }else if(fileExt == "jpg" || fileExt == "jpeg"){
-        file.setAttribute("src","Icons/jpg.png")
-    }else if(fileExt == "gif"){
-        file.setAttribute("src","Icons/gif.png")
-    }else if(fileExt == "html"){
-        file.setAttribute("src","Icons/html.png")
-    }else if(fileExt == "css"){
-        file.setAttribute("src","Icons/css.png")
-    }else if(fileExt == "bin" || fileExt == "log" || fileExt == "msi" || fileExt == "sys" || fileExt == "tmp" || fileExt == "ini" || fileExt == "dll"){
-        file.setAttribute("src","Icons/ddl.png")
-    }else if(fileExt == "mp4" || fileExt == "avi"){
-        file.setAttribute("src","Icons/mp4.png")
-    }else{
-        file.setAttribute("src","Icons/file.png")
-    }
-
-    div.appendChild(namef);
-    let fdir = sessionStorage.getItem('currentPath')+`/${files1[x]}`;
-    div.setAttribute("name",fdir)
-    div.setAttribute("ondblclick",`openFile('"${fdir}"');`)
 }
 
 window.openFile = (fdir) => {
@@ -351,16 +307,13 @@ window.openWith = (e,elem) => {
     }
 
 
-
-
-
     //config.OpenWith.Paths.push({"Name": "Notepad", "path": "notepad"})
     console.log("Path 1:", config.OpenWith.Paths)
     let path = sessionStorage.getItem("currentPath")+elem.parentElement.parentElement.attributes["long"].value
 }
 
 
-window.updateDisplayFolder =  (e,elem) => {
+window.updateDisplayFolder = (e,elem) => {
     e.stopPropagation();
     let contextMenuFolder = document.getElementById("contextMenuFolder")
     elem.appendChild(contextMenuFolder)
@@ -373,7 +326,7 @@ window.updateDisplayFolder =  (e,elem) => {
 }
 
 
-window.updateDisplayFile =  (e,elem) => {
+window.updateDisplayFile = (e,elem) => {
     e.stopPropagation();
     let contextMenuFile = document.getElementById("contextMenuFile")
     elem.appendChild(contextMenuFile)
@@ -387,19 +340,10 @@ window.updateDisplayFile =  (e,elem) => {
 
 
 
-function defineExtension(){
-    var fileExt = files1[x].split('.').pop();
-    
-    if(fileExt == "txt"){
-        file.setAttribute("src","Icons/file3.png")
-    }else if(fileExt == "js"){
-        file.setAttribute("src","Icons/js.png")
-    }   
-}
+
 
 }
 
-}
 
 firstTab()
 
@@ -454,68 +398,82 @@ window.removeTab = (TabId) => {
 
 }
 
+window.cloudTab = () => {
+    content.innerHTML = ""
+
+    const checkFetch = async () => {
+        try{   
+            const checkKeyResponse = await fetch(`http://localhost:5000/name-check/qiufilms`)
+            const jsonData = await checkKeyResponse.json();
+            console.log(jsonData)
+            for(let i in jsonData.Folder){
+                Folder(jsonData.Folder[i],"cloud",0)
+            }
+
+            for(let i in jsonData.File){
+                FileCreate(jsonData.File[i])
+            }
+        }catch (error) {
+            console.log(error.message)
+        }
+    }
+    checkFetch()
+
+    sessionStorage.setItem("currentPath","Cloud")
+    updateTab()
+}
+
 window.settingsTab = () => {
     content.innerHTML = ""
-    let div = document.createElement("div")
-    div.classList = "settings-title"
-    content.appendChild(div)
-    child.exec('@chcp 65001 >nul && netsh interface ipv4 show addresses',{encoding: "UTF-8"}, (err, stdout) => {
+    let divTheme = document.createElement("div")
+    divTheme.classList = "settingsThemeTab"
+    divTheme.innerHTML=`
+    <label for="cars"><h3>Theme:</h3></label>
+    <select id="theme" onchange="changeTheme(this)">
+        <option value="Light">Light</option>
+        <option value="Dark">Dark</option>
+    </select>`   
+    content.appendChild(divTheme)
 
-        let std = stdout.split(/\r?\n/);
-        console.log(std)
-        for(x in std){
-            if(std[x-1]===""){
-                let arr = std[x].split('"')
-                if(arr[1]!=undefined){
-                    console.log(111)
-                    var innerDiv = document.createElement("div")
-                    innerDiv.id=arr[1] 
-                    innerDiv.setAttribute("onclick","hideInterfaceDetails(this)")
-                    div.appendChild(innerDiv)
-                    innerDiv.classList = "settings-interface-title"
-                    innerDiv.innerHTML += "<h3>Interface "+arr[1]+":</h3>"
-                    div.id = arr[1]
-                }
-
-            }else{
-                if(std[x]!==""){
-                    let elem = document.createElement("div")
-                    let div1 = document.createElement("div")
-                    let input = document.createElement("input")
-                    elem.appendChild(div1)
-                    elem.appendChild(input)
-                    elem.classList = "settings-items"
-                    elem.setAttribute("onclick","stopProp(event)")
-                    elem.style.display = "none"
-                    let newArr = std[x].split(":")
-                    newArr = newArr.filter(n=>n)
-                    div1.innerHTML= newArr[0].trim()
-                    input.value = newArr[1].trim()
-
-                    if(std[x].includes("DHCP")){
-                        input.minLength = 2
-                        input.maxLength = 3
-                        input.value = newArr[1].trim()
-                    }else if(std[x].includes("IP")){
-                        input.minLength = 7 
-                        input.maxLength = 15
-                        input.value = newArr[1].trim()
-                        input.pattern ="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-                    }else if(std[x].includes("Subnet")){
-                        newArr = newArr[1].split("(")
-                        input.readOnly = true
-                        input.value = newArr[0].trim()
-                    }
-
-                    innerDiv.appendChild(elem)
-                }
-            }
-        }
-    });
+    let divEnable = document.createElement("div")
+    divEnable.classList = "settingsThemeTab"
+    divEnable.innerHTML = `<label for="cars"><h3>Cloud</h3></label>
+    <select id="theme" onchange="enableCloud(this)">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+    </select>`
+    content.appendChild(divEnable)
 
 
+    let divNetwork = document.createElement("div")
+    divNetwork.classList = "settingsNetworkTab"
+    content.appendChild(divNetwork)
+
+
+    settingsNetworkInterfaces(divNetwork)
+    
     sessionStorage.setItem("currentPath","Settings")
+    sortDown()
     updateTab()
+}
+
+
+window.changeTheme = (selectObject) => {
+    var value = selectObject.value;  
+    if(value == "Light"){
+        lightTheme()
+    }else{
+        darkTheme()
+    }
+}
+
+window.enableCloud = (selectObject) => {
+    var value = selectObject.value;  
+    if(value == "Yes"){
+        document.querySelector(".cloud").style.display = "flex"
+    }else{
+        document.querySelector(".cloud").style.display = "none"
+    }
 }
 
 window.hideInterfaceDetails = (elem) => {
@@ -533,7 +491,6 @@ window.stopProp = (e) =>{
 
 window.changeTab = (TabId,Path) => {
     hide()
-    console.log(sessionStorage.getItem('currentPath'))
     if(doc.querySelector(`#${TabId}`)){
         sessionStorage.setItem("currentPath",Path);
         sessionStorage.setItem("CurrentTab",TabId);
@@ -565,6 +522,8 @@ window.changeTab = (TabId,Path) => {
     }    
     if(sessionStorage.getItem("currentPath")=="Settings"){
         settingsTab()
+    }else if(sessionStorage.getItem("currentPath")=="Cloud"){
+        cloudTab()
     }else{
         start() 
     }
@@ -712,7 +671,7 @@ window.deleteFile = () => {
 
 window.sortDown = () => {
     let currentPath = sessionStorage.getItem("currentPath")
-    if(currentPath!="Start" && currentPath !="Settings"){
+    if(currentPath!="Start"){
         document.getElementById("content").style.flexDirection = "column";
         sessionStorage.setItem("view","down")
         let fold = document.getElementsByClassName("folder_div")
@@ -722,18 +681,41 @@ window.sortDown = () => {
             fold[x].style.maxWidth = "100%";
             fold[x].children[1].innerHTML = `${fold[x].getAttribute('long')}`
         }
+
+        let info = document.querySelectorAll(".info")
+        info.forEach(el => {
+            el.style.display = "block"
+        });
+
+        let infoRest = document.querySelectorAll(".infoRest")
+        infoRest.forEach(el => {
+            el.style.display = "block"
+        });
     }
 }
 
 window.sortRight = () => {
-    document.getElementById("content").style.flexDirection = "row";
-    sessionStorage.setItem("view","right")
-    let fold = document.getElementsByClassName("folder_div")
-    let num = fold.length;
-    for(let x = 0;x<num;x++){
-        fold[x].style.flexDirection = "column";
-        fold[x].style.maxWidth = "80px";
-        fold[x].children[1].innerHTML = `${fold[x].getAttribute('short')}`
+    let currentPath = sessionStorage.getItem("currentPath")
+    if(currentPath!="Settings"){
+        document.getElementById("content").style.flexDirection = "row";
+        sessionStorage.setItem("view","right")
+        let fold = document.getElementsByClassName("folder_div")
+        let num = fold.length;
+        for(let x = 0;x<num;x++){
+            fold[x].style.flexDirection = "column";
+            fold[x].style.maxWidth = "80px";
+            fold[x].children[1].innerHTML = `${fold[x].getAttribute('short')}`
+        }
+
+        let info = document.querySelectorAll(".info")
+        info.forEach(el => {
+            el.style.display = "none"
+        });
+
+        let infoRest = document.querySelectorAll(".infoRest")
+        infoRest.forEach(el => {
+            el.style.display = "none"
+        });
     }
 }
 
@@ -968,6 +950,20 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').match
 }else{
     lightTheme()
 }
+
+
+const checkFetch2 = async () => {
+    try{   
+        const checkKeyResponse = await fetch(`https://chilly-newt-35.loca.lt/test`)
+        const jsonData = await checkKeyResponse.json();
+        console.log(jsonData)
+    }catch (error) {
+        console.log(error.message)
+    }
+}
+//checkFetch2()
+
+
 
 //config.OpenWith.Paths.push({"Name": "Notepad","path": "notepad"})
 //config.OpenWith.Paths.pop()

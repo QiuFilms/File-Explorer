@@ -25,7 +25,9 @@ class TabElement{
 
         document.querySelector(`#${this.tabId}`).querySelector('.tab_name').innerHTML = path[path.length-1] 
         document.querySelector(`#${this.tabId}`).setAttribute("Path", this.path)
-        
+        if(this.path == "Cloud"){
+            document.querySelector(`#${this.tabId}`).removeAttribute("ondragover")
+        }
         HideContextMenus()
     }
 
